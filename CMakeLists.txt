@@ -7,9 +7,10 @@ add_executable(WFS
     src/CpuFeatures.cpp
     src/glad.c
     src/libretroClass.cpp
+    src/debug.cpp
+    src/audio.cpp
     
     #headers
-    src/debug.cpp
     include/videoDefs.hpp
     include/libretro.h
     
