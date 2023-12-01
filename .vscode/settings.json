@@ -3,6 +3,10 @@
         "iostream": "cpp"
     },
     "cSpell.words": [
-        "LIBRETRO"
+        "FRAMEBUFFER",
+        "JOYPAD",
+        "LIBRETRO",
+        "OPENGL",
+        "WINDOWEVENT"
     ]
 }

@@ -9,6 +9,7 @@ add_executable(WFS
     src/libretroClass.cpp
     src/debug.cpp
     src/audio.cpp
+    src/video.cpp
     
     #headers
     include/videoDefs.hpp
