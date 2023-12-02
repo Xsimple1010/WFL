@@ -10,18 +10,21 @@ add_executable(WFS
     src/debug.cpp
     src/audio.cpp
     src/video.cpp
+    src/controller.cpp
+    
+    #OPENGL
+    src/WFL_GL/wflGl.cpp
     
     #headers
     include/videoDefs.hpp
     include/libretro.h
-    
 )
 
 find_package(SDL2 REQUIRED)
 
 target_include_directories(WFS
-    PUBLIC include/
-    PUBLIC ${SDL2_INCLUDE_DIRS}
+PUBLIC include/
+PUBLIC ${SDL2_INCLUDE_DIRS}
 )
 
 link_libraries(include/glad/glad.h /src/glad.c)
