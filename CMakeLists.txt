@@ -16,6 +16,7 @@ add_executable(WFS
     src/WFL_GL/wflGl.cpp
     
     #headers
+    include/gamecontrollerdb.txt
     include/videoDefs.hpp
     include/libretro.h
 )
