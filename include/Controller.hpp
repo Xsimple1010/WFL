@@ -3,26 +3,24 @@
 
 #include <SDL2/SDL.h>
 #include <iostream>
-#include <list>
+#include <vector>
+#include <xmemory>
 #include "controllerDefs.hpp"
 
-typedef void on_device_disconnect_t(SDL_JoystickID id, int port);
-typedef void on_device_connect_t(SDL_GameController* gmController);
-struct controller_events {
-	on_device_disconnect_t* onDisconnect;
-	on_device_connect_t* onConnect;
-};
+using std::vector;
+// using std::array;
 
-using std::list;
+static size_t const deviceMaxSize = 6;
 
 class ControllerClass {
-	list<controller_device> devices;
-	controller_events* callbacksEvents;
+	private:
+		vector<controller_device> devices;
+		controller_events* callbacksEvents;
 
 	public:
 		ControllerClass(controller_events* events);
 		void deinit();
-		list<Joystick> getConnectedJoysticks();
+		vector<Joystick> getConnectedJoysticks();
 		void append(controller_device device);
 		void inputPoll();
 		int16_t inputState(unsigned port, unsigned device, unsigned index, unsigned id); 

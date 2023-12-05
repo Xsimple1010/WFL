@@ -33,8 +33,8 @@ static size_t audioSampleBatch(const int16_t* data, size_t frames) {
 }
 
 //inputs
-void setController(){
-	list<Joystick> joysticks = controller.getConnectedJoysticks();
+static void setController(){
+	vector<Joystick> joysticks = controller.getConnectedJoysticks();
 
 	controller_device deviceGamePad = {
 		.index = 0,
@@ -61,11 +61,11 @@ void setController(){
 	};
 
 	for (Joystick joy : joysticks)
-	{	
+	{
 
 		SDL_GameController* gmController = SDL_GameControllerOpen(joy.index);
 
-		if(SDL_GameControllerGetType(gmController) == SDL_CONTROLLER_TYPE_PS5) {
+		if (SDL_GameControllerGetType(gmController) == SDL_CONTROLLER_TYPE_PS5) {
 			deviceGamePad.nativeInfo.controllerToken = gmController;
 			deviceGamePad.index = joy.index;
 			deviceGamePad.id = joy.id;
@@ -80,7 +80,7 @@ void setController(){
 }
 
 static void onDisconnect(SDL_JoystickID id, int port){
-
+	
 }
 
 static void onConnect(SDL_GameController* gmController){
@@ -221,10 +221,10 @@ int main(int argc, char* argv[]) {
 	}
 
 
-    SDL_Quit();
-	video.deinit();
-	audioDeinit();
 	controller.deinit();
+	audioDeinit();
+	video.deinit();
+    SDL_Quit();
 
     return 0;
 }

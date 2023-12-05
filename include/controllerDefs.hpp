@@ -1,10 +1,8 @@
 #ifndef WFL_KEYBOARD_DEFS_H
 #define WFL_KEYBOARD_DEFS_H 
 
-#include <SDL2/SDL.h>
+#include <SDL2/SDL_gamecontroller.h>
 #include "libretro.h"
-#include <map>
-
 
 #define WFL_DEVICE_KEYBOARD       1
 #define WFL_DEVICE_JOYSTICK       2
@@ -13,6 +11,14 @@
 struct Keyboard_keymap {
 	unsigned native;
 	unsigned retro;
+};
+
+
+typedef void on_device_disconnect_t(SDL_JoystickID id, int port);
+typedef void on_device_connect_t(SDL_GameController* gmController);
+struct controller_events {
+	on_device_disconnect_t* onDisconnect;
+	on_device_connect_t* onConnect;
 };
 
 struct joystick_keymap {
@@ -39,13 +45,8 @@ struct controller_device {
 	controller_native_info nativeInfo;
 	Keyboard_keymap keyboardKeyBinds[RETRO_DEVICE_ID_JOYPAD_R3 + 1];
 	joystick_keymap joystickKeyBinds[RETRO_DEVICE_ID_JOYPAD_R3 + 1];
-	bool operator==(const controller_device &p)
-    {
-        return (this->id == p.id);
-    }
-	bool operator!=(const controller_device &p)
-    {
-        return (this->id != p.id);
-    }
+	bool operator==(const controller_device& other) const {
+		return this->id == other.id;
+	}
 };
 #endif

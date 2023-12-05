@@ -1,7 +1,6 @@
 #include "Controller.hpp"
 
 static unsigned GJoy[RETRO_DEVICE_ID_JOYPAD_R3] = { 0 };
-KeyboardClass keyboard;
 
 
 ControllerClass::ControllerClass(controller_events* events) {
@@ -18,8 +17,8 @@ void ControllerClass::deinit() {
 	devices.clear();
 }
 
-list<Joystick> ControllerClass::getConnectedJoysticks() {
-	list<Joystick> joysticks;
+vector<Joystick> ControllerClass::getConnectedJoysticks() {
+	vector<Joystick> joysticks;
 	int jNun = SDL_NumJoysticks();
 
 	for (int i = 0; i < jNun; i++)
@@ -32,7 +31,7 @@ list<Joystick> ControllerClass::getConnectedJoysticks() {
 				.name = SDL_JoystickNameForIndex(i),
 			};
 
-			joysticks.insert(joysticks.begin().operator++(i), joy);
+			joysticks.push_back(joy);
 		}
 
 	}
@@ -41,18 +40,29 @@ list<Joystick> ControllerClass::getConnectedJoysticks() {
 }
 
 void ControllerClass::append(controller_device device) {
-	devices.insert(devices.begin().operator++(device.index), device);
+	if(device.port <= deviceMaxSize) {
+		devices.push_back(device);
+	}
 }
 
 void ControllerClass::inputPoll()
 {
 	for (controller_device device : devices) 
-	{
-		for (joystick_keymap keymap : device.joystickKeyBinds)
-		{
-			GJoy[keymap.retro] = SDL_GameControllerGetButton(device.nativeInfo.controllerToken, keymap.native);
+	{	
+		if(device.nativeInfo.type == WFL_DEVICE_JOYSTICK){
+			for (joystick_keymap keymap : device.joystickKeyBinds)
+			{
+				GJoy[keymap.retro] = SDL_GameControllerGetButton(device.nativeInfo.controllerToken, keymap.native);
+			}
+		} else if(device.nativeInfo.type == WFL_DEVICE_KEYBOARD) {
+			int i;
+			auto g_kbd = SDL_GetKeyboardState(NULL);
+
+			for (i = 0; device.keyboardKeyBinds[i].retro || device.keyboardKeyBinds[i].native; ++i)
+			{
+				GJoy[device.keyboardKeyBinds[i].retro] = g_kbd[device.keyboardKeyBinds[i].native];
+			}
 		}
-		
 	}
 }
 
@@ -61,10 +71,12 @@ int16_t ControllerClass::inputState(unsigned port, unsigned deviceType, unsigned
 		return 0;
 	}
 
-	controller_device device = devices.begin().operator++(port).operator*();
 
-	if(device.type == deviceType ) {
-		return GJoy[id];
+	for (const controller_device device : devices)
+	{
+		if(device.type == deviceType) {
+			return GJoy[id];
+		}
 	}
 
 	return 0;
@@ -83,19 +95,16 @@ void ControllerClass::onConnect(SDL_JoystickID id) {
 
 void ControllerClass::onDisconnect(SDL_JoystickID id) {
 	controller_device rmDevice;
-
-	for (controller_device device : devices)
+	
+	for (controller_device device : devices) 
 	{
 		if(device.id == id) {
-			rmDevice = device;
 			SDL_GameControllerClose(device.nativeInfo.controllerToken);
+			rmDevice = device;
 		}
 	}
 	
-
-	callbacksEvents->onDisconnect(rmDevice.id, rmDevice.port);	
-
-	devices.remove(rmDevice);
+	devices.erase(std::remove(devices.begin(), devices.end(), rmDevice));
 }
 
 void ControllerClass::checkerChanges() {
