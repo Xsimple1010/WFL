@@ -39,10 +39,20 @@ vector<Joystick> ControllerClass::getConnectedJoysticks() {
 	return joysticks;
 }
 
-void ControllerClass::append(controller_device device) {
-	if(device.port <= deviceMaxSize) {
-		devices.push_back(device);
+void ControllerClass::append(controller_device newDevice) {
+	if(newDevice.port > deviceMaxSize) return;
+
+	for (controller_device device : devices)
+	{
+		if(device.id == newDevice.id) {
+			device = newDevice;
+		}
 	}
+
+	if(devices.empty()) {
+		devices.push_back(newDevice);
+	}
+	 
 }
 
 void ControllerClass::inputPoll()
