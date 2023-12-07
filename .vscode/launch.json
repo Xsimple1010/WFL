@@ -7,8 +7,8 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug",
-            "program": "${workspaceFolder}/build/WFS.exe",
+            "name": "x64 Debug",
+            "program": "${workspaceFolder}/out/build/x64-debug/WFL.exe",
             "args": [],
             "cwd": "${workspaceFolder}"
         }
