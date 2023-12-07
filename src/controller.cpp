@@ -81,7 +81,6 @@ int16_t ControllerClass::inputState(unsigned port, unsigned deviceType, unsigned
 		return 0;
 	}
 
-
 	for (const controller_device device : devices)
 	{
 		if(device.type == deviceType) {
@@ -113,8 +112,11 @@ void ControllerClass::onDisconnect(SDL_JoystickID id) {
 			rmDevice = device;
 		}
 	}
-	
-	devices.erase(std::remove(devices.begin(), devices.end(), rmDevice));
+
+	if(!devices.empty()) {
+		devices.erase(std::find(devices.begin(), devices.end(), rmDevice));
+	}
+
 }
 
 void ControllerClass::checkerChanges() {
