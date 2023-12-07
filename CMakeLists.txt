@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.8)
 
-# Habilite a Recarga Dinâmica para compiladores MSVC, se houver suporte.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# Habilite a Recarga Dinï¿½mica para compiladores MSVC, se houver suporte.
 if (POLICY CMP0141)
   cmake_policy(SET CMP0141 NEW)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
@@ -8,10 +10,11 @@ endif()
 
 project(WFL)
 
-add_executable(WFL
-    #src/WFL.cpp
-    src/main.cpp
+add_library(WFL SHARED
+    src/WFL.cpp
+    # src/main.cpp
     src/CpuFeatures.cpp
+    
     src/glad.c
     src/libretroClass.cpp
     src/debug.cpp
@@ -19,7 +22,7 @@ add_executable(WFL
     src/video.cpp
     src/controller.cpp
     
-    # #OPENGL
+    #OPENGL
     src/WFL_GL/wflGl.cpp
     
     #headers
@@ -28,6 +31,27 @@ add_executable(WFL
     include/videoDefs.hpp
     include/libretro.h
 )
+
+# add_executable(WFL
+#     src/main.cpp
+#     src/CpuFeatures.cpp
+    
+#     src/glad.c
+#     src/libretroClass.cpp
+#     src/debug.cpp
+#     src/audio.cpp
+#     src/video.cpp
+#     src/controller.cpp
+    
+#     #OPENGL
+#     src/WFL_GL/wflGl.cpp
+    
+#     #headers
+#     include/WFL.h
+#     include/gamecontrollerdb.txt
+#     include/videoDefs.hpp
+#     include/libretro.h
+# )
 
 find_package(SDL2 REQUIRED)
 

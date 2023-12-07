@@ -2,4 +2,6 @@
 /CMakeFiles
 /out
 
+CMakeCache.txt
+
 *.dll
