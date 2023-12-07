@@ -13,17 +13,16 @@ struct Keyboard_keymap {
 	unsigned retro;
 };
 
+struct joystick_keymap {
+	SDL_GameControllerButton native;
+	unsigned int retro;
+};
 
 typedef void on_device_disconnect_t(SDL_JoystickID id, int port);
 typedef void on_device_connect_t(SDL_GameController* gmController);
 struct controller_events {
 	on_device_disconnect_t* onDisconnect;
 	on_device_connect_t* onConnect;
-};
-
-struct joystick_keymap {
-	SDL_GameControllerButton native;
-	unsigned int retro;
 };
 
 struct controller_native_info {
@@ -43,8 +42,8 @@ struct controller_device {
 	int port;
 	unsigned int type;	
 	controller_native_info nativeInfo;
-	Keyboard_keymap keyboardKeyBinds[RETRO_DEVICE_ID_JOYPAD_R3 + 1];
-	joystick_keymap joystickKeyBinds[RETRO_DEVICE_ID_JOYPAD_R3 + 1];
+	struct Keyboard_keymap keyboardKeyBinds[RETRO_DEVICE_ID_JOYPAD_R3 + 1];
+	struct joystick_keymap joystickKeyBinds[RETRO_DEVICE_ID_JOYPAD_R3 + 1];
 	bool operator==(const controller_device& other) const {
 		return this->id == other.id;
 	}

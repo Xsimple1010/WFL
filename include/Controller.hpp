@@ -8,7 +8,6 @@
 #include "controllerDefs.hpp"
 
 using std::vector;
-// using std::array;
 
 static size_t const deviceMaxSize = 6;
 
@@ -21,7 +20,7 @@ class ControllerClass {
 		ControllerClass(controller_events* events);
 		void deinit();
 		vector<Joystick> getConnectedJoysticks();
-		void append(controller_device device);
+		void append(struct controller_device device);
 		void inputPoll();
 		int16_t inputState(unsigned port, unsigned device, unsigned index, unsigned id); 
 		void onConnect(SDL_JoystickID id);
