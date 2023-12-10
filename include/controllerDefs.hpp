@@ -25,6 +25,8 @@ struct controller_events {
 	on_device_connect_t* onConnect;
 };
 
+
+
 struct controller_native_info {
 	unsigned int type;
 	SDL_GameController* controllerToken;
@@ -47,5 +49,11 @@ struct controller_device {
 	bool operator==(const controller_device& other) const {
 		return this->id == other.id;
 	}
+};
+
+typedef void on_device_append_t(controller_device device);
+
+struct controller_internal_events {
+	on_device_append_t* onAppend;
 };
 #endif

@@ -3,8 +3,9 @@
 static unsigned GJoy[RETRO_DEVICE_ID_JOYPAD_R3] = { 0 };
 
 
-ControllerClass::ControllerClass(controller_events* events) {
-	callbacksEvents = events;
+ControllerClass::ControllerClass(controller_events* events, controller_internal_events* inEvents) {
+	callbacks = events;
+	internalCallbacks = inEvents;
 	SDL_GameControllerAddMappingsFromFile("./include/gamecontrollerdb.txt");
 }
 
@@ -53,6 +54,7 @@ void ControllerClass::append(controller_device newDevice) {
 		devices.push_back(newDevice);
 	}
 	 
+	internalCallbacks->onAppend(newDevice);
 }
 
 void ControllerClass::inputPoll()
@@ -98,7 +100,7 @@ void ControllerClass::identify() {
 
 void ControllerClass::onConnect(SDL_JoystickID id) {
 	SDL_GameController* gmController = SDL_GameControllerFromInstanceID(id);
-	callbacksEvents->onConnect(gmController);
+	callbacks->onConnect(gmController);
 }
 
 
@@ -114,6 +116,8 @@ void ControllerClass::onDisconnect(SDL_JoystickID id) {
 	}
 
 	if(!devices.empty()) {
+	
+		callbacks->onDisconnect(rmDevice.id, rmDevice.port);
 		devices.erase(std::find(devices.begin(), devices.end(), rmDevice));
 	}
 

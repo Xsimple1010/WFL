@@ -9,15 +9,16 @@
 #include "Video.hpp"
 #include "WFL.h"
 
-bool running = true;
-SDL_Event event;
+static bool running = true;
+static SDL_Event event;
 
+static controller_internal_events controllerInternalEvents;
 static controller_events controllerEvents;
 static libretro_external_data externalCoreData;
 static core_event_functions eventFunction; 
 
 static Libretro libretro = Libretro(&eventFunction, &externalCoreData);
-static ControllerClass controller = ControllerClass(&controllerEvents);
+static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
 static VideoClass video;
 
 //audio
@@ -29,12 +30,6 @@ static void audioSample(int16_t left, int16_t right) {
 
 static size_t audioSampleBatch(const int16_t* data, size_t frames) {
 	return audioWrite(data, frames);
-	return frames;
-}
-
-//inputs
-void setController(){
-	
 }
 
 static void inputPoll() {
@@ -43,19 +38,19 @@ static void inputPoll() {
 
 static int16_t inputState(unsigned port, unsigned device, unsigned index, unsigned id) {
 	return controller.inputState(port, device, index, id);
-	return 1;
+}
+
+static void onDeviceAppend(controller_device device) {
+	libretro.setControllerPortDevice(device.port, device.type);
 }
 
 //video
 static void videoInit(retro_game_geometry *geometry) {
-	std::cout << geometry->max_height << std::endl;
-
 	video.init(&externalCoreData, geometry);
 };
 
 static bool setPixelFormat(unsigned format) {
 	return video.setPixelFormat(format, &externalCoreData);
-	return true;
 }
 
 static void refreshVertexData() {
@@ -86,7 +81,7 @@ static void initializeVariables() {
 
 	externalCoreData.window = NULL;
 	externalCoreData.gVideo = {0};
-	externalCoreData.gScale = 1;
+	externalCoreData.gScale = 2;
 	externalCoreData.audioCallback;
 	externalCoreData.runLoopFrameTime;
 	externalCoreData.runLoopFrameTimeLast = 0;
@@ -104,20 +99,19 @@ static void initializeVariables() {
 
 
 //WFLAPI
-void WFLAPI wflSetCallbacks(controller_events events) {
+void wflInit(controller_events events) {
 	controllerEvents.onConnect = events.onConnect;
 	controllerEvents.onDisconnect = events.onDisconnect;
-}
 
-void WFLAPI wflInit() {
+	controllerInternalEvents.onAppend = onDeviceAppend;
 	initializeVariables();
 }
 
-void WFLAPI wflLoadCore(const char* path) {
+void wflLoadCore(const char* path) {
 	libretro.coreLoad(path);
 }
 
-void WFLAPI wflLoadGame(const char* path) {
+void wflLoadGame(const char* path) {
 	retro_system_av_info avInfo = libretro.loadGame(path);
 
 	videoInit(&avInfo.geometry);
@@ -183,25 +177,23 @@ void WFLAPI wflLoadGame(const char* path) {
 
 		libretro.run();
 	}
-}
 
-void WFLAPI wflUnloadGame() {
-	libretro.unloadGame();
-
+	video.deinit();
 	audioDeinit();
 	controller.deinit();
-	video.deinit();
-}
-
-void WFLAPI wflSetController(controller_device device) {
-	controller.append(device);
-}
-
-void WFLAPI wflDeinit() {
 	libretro.deinit();
     SDL_Quit();
 }
 
-int main(int argc, char* argv[]) {
-    return 0;
+void wflSetController(controller_device device) {
+	controller.append(device);
+}
+
+
+vector<Joystick> wflGetConnectedJoysticks() {
+	return controller.getConnectedJoysticks();
+}
+
+void wflDeinit() {
+	libretro.deinit();
 }

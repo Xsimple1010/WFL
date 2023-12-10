@@ -14,10 +14,11 @@ static size_t const deviceMaxSize = 6;
 class ControllerClass {
 	private:
 		vector<controller_device> devices;
-		controller_events* callbacksEvents;
+		controller_events* callbacks;
+		controller_internal_events* internalCallbacks;
 
 	public:
-		ControllerClass(controller_events* events);
+		ControllerClass(struct controller_events* events, controller_internal_events* inEvents);
 		void deinit();
 		vector<Joystick> getConnectedJoysticks();
 		void append(struct controller_device device);

@@ -66,8 +66,6 @@ class Libretro
 {
 	public:
 		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData);
-		~Libretro();
-
 		void coreLoad(const char* coreFile);
 		retro_system_av_info loadGame(const char* gameFile);
 		retro_system_info getSystemInfo();

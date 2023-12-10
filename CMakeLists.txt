@@ -10,48 +10,27 @@ endif()
 
 project(WFL)
 
-add_library(WFL SHARED
-    src/WFL.cpp
-    # src/main.cpp
-    src/CpuFeatures.cpp
-    
-    src/glad.c
-    src/libretroClass.cpp
-    src/debug.cpp
-    src/audio.cpp
-    src/video.cpp
-    src/controller.cpp
-    
-    #OPENGL
-    src/WFL_GL/wflGl.cpp
-    
-    #headers
-    include/WFL.h
-    include/gamecontrollerdb.txt
-    include/videoDefs.hpp
-    include/libretro.h
+add_executable(WFL
+  src/main.cpp
+  src/WFL.cpp
+  src/CpuFeatures.cpp
+  
+  src/glad.c
+  src/libretroClass.cpp
+  src/debug.cpp
+  src/audio.cpp
+  src/video.cpp
+  src/controller.cpp
+  
+  #OPENGL
+  src/WFL_GL/wflGl.cpp
+  
+  #headers
+  include/WFL.h
+  include/gamecontrollerdb.txt
+  include/videoDefs.hpp
+  include/libretro.h
 )
-
-# add_executable(WFL
-#     src/main.cpp
-#     src/CpuFeatures.cpp
-    
-#     src/glad.c
-#     src/libretroClass.cpp
-#     src/debug.cpp
-#     src/audio.cpp
-#     src/video.cpp
-#     src/controller.cpp
-    
-#     #OPENGL
-#     src/WFL_GL/wflGl.cpp
-    
-#     #headers
-#     include/WFL.h
-#     include/gamecontrollerdb.txt
-#     include/videoDefs.hpp
-#     include/libretro.h
-# )
 
 find_package(SDL2 REQUIRED)
 

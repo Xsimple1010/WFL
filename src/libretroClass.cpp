@@ -6,6 +6,19 @@ static core_event_functions* eventFunctions;
 Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* exterData) {
     externalData = exterData;
     eventFunctions = eventFuncs;
+}
+
+void Libretro::run() {
+    retroFunctions.retro_run();
+}
+
+void Libretro::setControllerPortDevice(unsigned port, unsigned device) {
+    retroFunctions.retro_set_controller_port_device(port, device);
+}
+
+//https://github.com/heuripedes/sdlarch/blob/c7760c81df688bfa146c7f0d2409656ca3eb35d2/sdlarch.c#L863
+void Libretro::coreLoad(const char* coreFile) {
+    if(retroFunctions.initialized) return;
 
     void (*set_environment)(retro_environment_t) = NULL;
 	void (*set_video_refresh)(retro_video_refresh_t) = NULL;
@@ -15,6 +28,8 @@ Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* ext
 	void (*set_audio_sample_batch)(retro_audio_sample_batch_t) = NULL;
 	
 	memset(&retroFunctions, 0, sizeof(retroFunctions));
+
+    retroFunctions.handle = SDL_LoadObject(coreFile);
 
     load_retro_sym(retro_init);
 	load_retro_sym(retro_deinit);
@@ -40,24 +55,7 @@ Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* ext
 	set_input_state(eventFunctions->inputState);
 	set_audio_sample(eventFunctions->audioSample);
 	set_audio_sample_batch(eventFunctions->audioSampleBatch);
-}
-
-Libretro::~Libretro() {
-    deinit();
-}
-
-
-void Libretro::run() {
-    retroFunctions.retro_run();
-}
-
-void Libretro::setControllerPortDevice(unsigned port, unsigned device) {
-    retroFunctions.retro_set_controller_port_device(port, device);
-}
-
-//https://github.com/heuripedes/sdlarch/blob/c7760c81df688bfa146c7f0d2409656ca3eb35d2/sdlarch.c#L863
-void Libretro::coreLoad(const char* coreFile) {
-	retroFunctions.handle = SDL_LoadObject(coreFile);
+	
 	
 	if (!retroFunctions.handle) {
 		die("Failed to load core: %s", SDL_GetError());
@@ -68,13 +66,18 @@ void Libretro::coreLoad(const char* coreFile) {
 }
 
 void Libretro::deinit() {
+    if(!retroFunctions.initialized) return;
+    
     retroFunctions.retro_unload_game();
     
-    if (retroFunctions.initialized)
+    if (retroFunctions.initialized) {
         retroFunctions.retro_deinit();
+        retroFunctions.initialized = false;
+    }
 
-    if (retroFunctions.handle)
+    if (retroFunctions.handle) {
         SDL_UnloadObject(retroFunctions.handle);
+    }
     externalData = NULL;
     eventFunctions = NULL;
 }
