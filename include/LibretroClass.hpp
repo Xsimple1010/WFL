@@ -73,6 +73,8 @@ class Libretro
 		retro_system_info getSystemInfo();
 		void setControllerPortDevice(unsigned port, unsigned device);
 		void run();
+		void unloadGame();
+		void deinit();
 };
 
 

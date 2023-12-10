@@ -6,33 +6,8 @@ static core_event_functions* eventFunctions;
 Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* exterData) {
     externalData = exterData;
     eventFunctions = eventFuncs;
-}
 
-Libretro::~Libretro() {
-    retroFunctions.retro_unload_game();
-    
-    if (retroFunctions.initialized)
-        retroFunctions.retro_deinit();
-
-    if (retroFunctions.handle)
-        SDL_UnloadObject(retroFunctions.handle);
-    externalData = NULL;
-    eventFunctions = NULL;
-
-}
-
-
-void Libretro::run() {
-    retroFunctions.retro_run();
-}
-
-void Libretro::setControllerPortDevice(unsigned port, unsigned device) {
-    retroFunctions.retro_set_controller_port_device(port, device);
-}
-
-//https://github.com/heuripedes/sdlarch/blob/c7760c81df688bfa146c7f0d2409656ca3eb35d2/sdlarch.c#L863
-void Libretro::coreLoad(const char* coreFile) {
-	void (*set_environment)(retro_environment_t) = NULL;
+    void (*set_environment)(retro_environment_t) = NULL;
 	void (*set_video_refresh)(retro_video_refresh_t) = NULL;
 	void (*set_input_poll)(retro_input_poll_t) = NULL;
 	void (*set_input_state)(retro_input_state_t) = NULL;
@@ -40,14 +15,8 @@ void Libretro::coreLoad(const char* coreFile) {
 	void (*set_audio_sample_batch)(retro_audio_sample_batch_t) = NULL;
 	
 	memset(&retroFunctions, 0, sizeof(retroFunctions));
-	
-	retroFunctions.handle = SDL_LoadObject(coreFile);
-	
-	if (!retroFunctions.handle) {
-		die("Failed to load core: %s", SDL_GetError());
-	}
 
-	load_retro_sym(retro_init);
+    load_retro_sym(retro_init);
 	load_retro_sym(retro_deinit);
 	load_retro_sym(retro_api_version);
 	load_retro_sym(retro_get_system_info);
@@ -71,9 +40,47 @@ void Libretro::coreLoad(const char* coreFile) {
 	set_input_state(eventFunctions->inputState);
 	set_audio_sample(eventFunctions->audioSample);
 	set_audio_sample_batch(eventFunctions->audioSampleBatch);
+}
+
+Libretro::~Libretro() {
+    deinit();
+}
+
+
+void Libretro::run() {
+    retroFunctions.retro_run();
+}
+
+void Libretro::setControllerPortDevice(unsigned port, unsigned device) {
+    retroFunctions.retro_set_controller_port_device(port, device);
+}
+
+//https://github.com/heuripedes/sdlarch/blob/c7760c81df688bfa146c7f0d2409656ca3eb35d2/sdlarch.c#L863
+void Libretro::coreLoad(const char* coreFile) {
+	retroFunctions.handle = SDL_LoadObject(coreFile);
+	
+	if (!retroFunctions.handle) {
+		die("Failed to load core: %s", SDL_GetError());
+	}
 
     retroFunctions.retro_init();
     retroFunctions.initialized = true;
+}
+
+void Libretro::deinit() {
+    retroFunctions.retro_unload_game();
+    
+    if (retroFunctions.initialized)
+        retroFunctions.retro_deinit();
+
+    if (retroFunctions.handle)
+        SDL_UnloadObject(retroFunctions.handle);
+    externalData = NULL;
+    eventFunctions = NULL;
+}
+
+void Libretro::unloadGame() {
+    retroFunctions.retro_unload_game();
 }
 
 retro_system_av_info Libretro::loadGame(const char* fileName) {

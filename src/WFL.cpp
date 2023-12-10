@@ -1,4 +1,4 @@
-#include "SDL2/SDL.h"
+#include <SDL.h>
 #include <iostream>
 
 #include "Controller.hpp"
@@ -186,9 +186,10 @@ void WFLAPI wflLoadGame(const char* path) {
 }
 
 void WFLAPI wflUnloadGame() {
-	// libretro.
+	libretro.unloadGame();
 
 	audioDeinit();
+	controller.deinit();
 	video.deinit();
 }
 
@@ -197,7 +198,7 @@ void WFLAPI wflSetController(controller_device device) {
 }
 
 void WFLAPI wflDeinit() {
-	controller.deinit();
+	libretro.deinit();
     SDL_Quit();
 }
 
