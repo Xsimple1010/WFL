@@ -67,19 +67,16 @@ void Libretro::coreLoad(const char* coreFile) {
 
 void Libretro::deinit() {
     if(!retroFunctions.initialized) return;
+    retroFunctions.initialized = false;
     
     retroFunctions.retro_unload_game();
     
-    if (retroFunctions.initialized) {
-        retroFunctions.retro_deinit();
-        retroFunctions.initialized = false;
-    }
-
+    retroFunctions.retro_deinit();
     if (retroFunctions.handle) {
         SDL_UnloadObject(retroFunctions.handle);
     }
-    externalData = NULL;
-    eventFunctions = NULL;
+    
+    retroFunctions = { 0 };
 }
 
 void Libretro::unloadGame() {

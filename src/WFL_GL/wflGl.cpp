@@ -118,9 +118,17 @@ void WFLGlClass::init(libretro_external_data* data, retro_game_geometry* geometr
 }
 
 void WFLGlClass::deinit() {
+	glDeleteTextures(1, &externalData->gVideo.texeture_id);
+	glDeleteFramebuffers(1, &externalData->gVideo.fbo_id);
+	glDeleteRenderbuffers(1, &externalData->gVideo.rbo_id);
+	glDeleteBuffers(1, &gShader.vbo);
+	glDeleteVertexArrays(1, &gShader.vao);
 
-	GlCtx = NULL;
+	SDL_GL_DeleteContext(GlCtx);
 	SDL_DestroyWindow(externalData->window);
+
+	gShader = {0};
+	externalData->gVideo = {0};
 }
 
 void WFLGlClass::createWindow(int width, int height) {

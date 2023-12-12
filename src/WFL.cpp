@@ -9,7 +9,7 @@
 #include "Video.hpp"
 #include "WFL.h"
 
-static bool running = true;
+static bool running = false;
 static SDL_Event event;
 
 static controller_internal_events controllerInternalEvents;
@@ -91,9 +91,6 @@ static void initializeVariables() {
 	externalCoreData.gVideo.hw.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
 	externalCoreData.gVideo.hw.context_reset = noop;
 	externalCoreData.gVideo.hw.context_destroy = noop;
-
-	//controllerEvents.onConnect = onConnect;
-	//controllerEvents.onDisconnect = onDisconnect;
 }
 //===========================================
 
@@ -104,14 +101,17 @@ void wflInit(controller_events events) {
 	controllerEvents.onDisconnect = events.onDisconnect;
 
 	controllerInternalEvents.onAppend = onDeviceAppend;
-	initializeVariables();
 }
 
 void wflLoadCore(const char* path) {
+	if(running) return;
+	initializeVariables();
 	libretro.coreLoad(path);
 }
 
 void wflLoadGame(const char* path) {
+	if(running) return;
+
 	retro_system_av_info avInfo = libretro.loadGame(path);
 
 	videoInit(&avInfo.geometry);
@@ -120,6 +120,7 @@ void wflLoadGame(const char* path) {
     }
 	audioInit(avInfo.timing.sample_rate);
 
+	running = true;
 	while (running) {
 
 		if (externalCoreData.runLoopFrameTime.callback) {
@@ -182,6 +183,9 @@ void wflLoadGame(const char* path) {
 	audioDeinit();
 	controller.deinit();
 	libretro.deinit();
+
+	externalCoreData = { 0 };
+    eventFunction = { 0 };
     SDL_Quit();
 }
 
