@@ -7,7 +7,7 @@ static controller_events events = {0};
 
 //inputs
 static void setController(){
-	vector<Joystick> joysticks = wflGetConnectedJoysticks();
+	vector<wfl_joystick> joysticks = wflGetConnectedJoysticks();
 
 	controller_device deviceGamePad = {
 		.index = 0,
@@ -33,7 +33,7 @@ static void setController(){
 		}
 	};
 
-	for (Joystick joy : joysticks)
+	for (wfl_joystick joy : joysticks)
 	{
 
 		SDL_GameController* gmController = SDL_GameControllerOpen(joy.index);

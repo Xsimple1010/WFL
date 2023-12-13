@@ -11,7 +11,7 @@ void wflLoadCore(const char* path);
 void wflLoadGame(const char* path);
 //void wflPause();
 void wflSetController(struct controller_device device);
-vector<Joystick> wflGetConnectedJoysticks();
+vector<wfl_joystick> wflGetConnectedJoysticks();
 
 #endif
 

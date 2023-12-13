@@ -194,7 +194,7 @@ void wflSetController(controller_device device) {
 }
 
 
-vector<Joystick> wflGetConnectedJoysticks() {
+vector<wfl_joystick> wflGetConnectedJoysticks() {
 	return controller.getConnectedJoysticks();
 }
 

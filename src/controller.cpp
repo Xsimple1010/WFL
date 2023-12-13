@@ -18,15 +18,15 @@ void ControllerClass::deinit() {
 	devices.clear();
 }
 
-vector<Joystick> ControllerClass::getConnectedJoysticks() {
-	vector<Joystick> joysticks;
+vector<wfl_joystick> ControllerClass::getConnectedJoysticks() {
+	vector<wfl_joystick> joysticks;
 	int jNun = SDL_NumJoysticks();
 
 	for (int i = 0; i < jNun; i++)
 	{	
 
 		if(SDL_IsGameController(i) == SDL_TRUE) {
-			Joystick joy = {
+			wfl_joystick joy = {
 				.id = SDL_JoystickGetDeviceInstanceID(i),
 				.index = i,
 				.name = SDL_JoystickNameForIndex(i),

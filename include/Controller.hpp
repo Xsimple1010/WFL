@@ -20,7 +20,7 @@ class ControllerClass {
 	public:
 		ControllerClass(struct controller_events* events, controller_internal_events* inEvents);
 		void deinit();
-		vector<Joystick> getConnectedJoysticks();
+		vector<wfl_joystick> getConnectedJoysticks();
 		void append(struct controller_device device);
 		void inputPoll();
 		int16_t inputState(unsigned port, unsigned device, unsigned index, unsigned id); 

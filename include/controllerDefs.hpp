@@ -32,7 +32,7 @@ struct controller_native_info {
 	SDL_GameController* controllerToken;
 };
 
-struct Joystick {
+struct wfl_joystick {
 	SDL_JoystickID id;
 	int index;
 	const char* name;
