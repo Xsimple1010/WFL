@@ -1,6 +1,9 @@
 #include <SDL.h>
 #include <iostream>
 #include "WFL.h"
+#include <string>
+
+using std::string;
 
 static controller_events events = {0};
 
@@ -61,9 +64,19 @@ int main(int argc, char* argv[]) {
     events.onConnect = onConnect;
     events.onDisconnect =  onDisconnect;
 
-    wflInit(events);
-    wflLoadCore("C:/RetroArch-Win64/cores/bsnes_libretro.dll");
-    wflLoadGame("C:/RetroArch-Win64/roms/Mega Man X (USA).sfc");
+	string rootPath = "C:/WFL/";
+	string savePath = rootPath + "save";
+	string systemPath = rootPath + "system";
+	string corePath = rootPath + "cores/bsnes_libretro.dll";
+	string romPath = rootPath + "roms/rom.sfc";
+
+	wfl_paths paths;
+	paths.save = savePath.c_str();
+	paths.system = systemPath.c_str();
+
+    wflInit(events, paths);
+    wflLoadCore(corePath.c_str());
+    wflLoadGame(romPath.c_str());
     // wflStop();
     return 0;
 }
