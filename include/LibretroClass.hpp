@@ -6,6 +6,7 @@
 #include "videoDefs.hpp"
 #include "debug.hpp"
 #include "CpuFeatures.hpp"
+#include "WFLdefs.hpp"
 
 #define load_sym(V, S) do {\
     if (!((*(void**)&V) = SDL_LoadFunction(retroFunctions.handle, #S))) \
@@ -45,7 +46,6 @@ struct core_event_functions {
 	resize_to_aspect_t* resizeToAspect;
 	refresh_vertex_data_t* refreshVertexData;
 	video_set_pixel_format_t* setPixelFormat;
-
 };
 
 struct libretro_external_data {
@@ -55,6 +55,7 @@ struct libretro_external_data {
 	retro_usec_t runLoopFrameTimeLast;
 	g_scale_t gScale;
 	SDL_Window* window = NULL;
+	struct wfl_paths paths;
 };
 
 

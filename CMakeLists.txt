@@ -29,6 +29,7 @@ add_executable(WFL
   include/WFL.h
   include/gamecontrollerdb.txt
   include/videoDefs.hpp
+  include/WFLdefs.hpp
   include/libretro.h
 )
 

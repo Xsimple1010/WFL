@@ -297,10 +297,14 @@ static bool environment(unsigned cmd, void* data) {
         externalData->audioCallback = *audio_cb;
         return true;
     }
-    case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY:
+    case RETRO_ENVIRONMENT_GET_SAVE_DIRECTORY: {
+        const char** dir = (const char**)data;
+        *dir = externalData->paths.save;
+        return true;
+    }
     case RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY: {
         const char** dir = (const char**)data;
-        *dir = ".";
+        *dir = externalData->paths.system;
         return true;
     }
     case RETRO_ENVIRONMENT_SET_GEOMETRY: {

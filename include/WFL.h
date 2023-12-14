@@ -2,11 +2,13 @@
 #define WFL_H
 
 #include "controllerDefs.hpp"
+#include "WFLdefs.hpp"
 #include <vector>
 
 using std::vector;
 
-void wflInit(struct controller_events events);
+
+void wflInit(struct controller_events events, wfl_paths paths);
 void wflLoadCore(const char* path);
 void wflLoadGame(const char* path);
 //void wflPause();

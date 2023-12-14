@@ -96,11 +96,15 @@ static void initializeVariables() {
 
 
 //WFLAPI
-void wflInit(controller_events events) {
+void wflInit(controller_events events, wfl_paths paths) {
 	controllerEvents.onConnect = events.onConnect;
 	controllerEvents.onDisconnect = events.onDisconnect;
 
 	controllerInternalEvents.onAppend = onDeviceAppend;
+
+	externalCoreData.paths.save = paths.save;
+	externalCoreData.paths.system = paths.system;
+	
 }
 
 void wflLoadCore(const char* path) {
