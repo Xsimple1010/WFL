@@ -17,10 +17,12 @@ set(WFL_SOURCE
   src/glad.c
   src/libretroClass.cpp
   src/debug.cpp
+  src/gameLoop.cpp
   src/audio.cpp
   src/video.cpp
   src/controller.cpp
-  src/threads/ioEvents.cpp
+  src/threads/threadIoEvents.cpp
+  src/threads/threadGameLoop.cpp
   
   #OPENGL
   src/WFL_GL/wflGl.cpp

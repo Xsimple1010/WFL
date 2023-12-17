@@ -1,7 +1,7 @@
 #include "WFL_GL/wflGl.hpp"
 
 static SDL_GLContext GlCtx;
-static libretro_external_data* externalData;
+static video_info* videoInfo;
 static g_shader_t gShader = { 0 };
 
 static const char* g_vshader_src =
@@ -26,27 +26,27 @@ static const char* g_fshader_src =
 //olhar depois
 static void init_framebuffer(int width, int height)
 {
-	glGenFramebuffers(1, &externalData->gVideo.fbo_id);
-	glBindFramebuffer(GL_FRAMEBUFFER, externalData->gVideo.fbo_id);
+	glGenFramebuffers(1, &videoInfo->gVideo.fbo_id);
+	glBindFramebuffer(GL_FRAMEBUFFER, videoInfo->gVideo.fbo_id);
 
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, externalData->gVideo.texeture_id, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, videoInfo->gVideo.texeture_id, 0);
 
-	if (externalData->gVideo.hw.depth && externalData->gVideo.hw.stencil) {
-		glGenRenderbuffers(1, &externalData->gVideo.rbo_id);
-		glBindRenderbuffer(GL_RENDERBUFFER, externalData->gVideo.rbo_id);
+	if (videoInfo->gVideo.hw.depth && videoInfo->gVideo.hw.stencil) {
+		glGenRenderbuffers(1, &videoInfo->gVideo.rbo_id);
+		glBindRenderbuffer(GL_RENDERBUFFER, videoInfo->gVideo.rbo_id);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, externalData->gVideo.rbo_id);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, videoInfo->gVideo.rbo_id);
 	}
-	else if (externalData->gVideo.hw.depth) {
-		glGenRenderbuffers(1, &externalData->gVideo.rbo_id);
-		glBindRenderbuffer(GL_RENDERBUFFER, externalData->gVideo.rbo_id);
+	else if (videoInfo->gVideo.hw.depth) {
+		glGenRenderbuffers(1, &videoInfo->gVideo.rbo_id);
+		glBindRenderbuffer(GL_RENDERBUFFER, videoInfo->gVideo.rbo_id);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, externalData->gVideo.rbo_id);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, videoInfo->gVideo.rbo_id);
 	}
 
-	if (externalData->gVideo.hw.depth || externalData->gVideo.hw.stencil)
+	if (videoInfo->gVideo.hw.depth || videoInfo->gVideo.hw.stencil)
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -59,8 +59,12 @@ static void init_framebuffer(int width, int height)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void WFLGlClass::init(libretro_external_data* data, retro_game_geometry* geometry) {
-	externalData = data;
+void WFLGlClass::setInfo(video_info* data) {
+	videoInfo = data;
+}
+
+void WFLGlClass::init(retro_game_geometry* geometry) {
+
 
 	int nwidth, nheight;
 	
@@ -72,34 +76,34 @@ void WFLGlClass::init(libretro_external_data* data, retro_game_geometry* geometr
 		&nheight
 	);
 
-	nwidth *= data->gScale;
-	nheight *= data->gScale;
+	nwidth *= videoInfo->gScale;
+	nheight *= videoInfo->gScale;
 
-	if (!data->window) {
+	if (!videoInfo->window) {
 		createWindow(nwidth, nheight);
 	}
 
-	if (data->gVideo.texeture_id) {
-		glDeleteTextures(1, &data->gVideo.texeture_id);
+	if (videoInfo->gVideo.texeture_id) {
+		glDeleteTextures(1, &videoInfo->gVideo.texeture_id);
 	}
 
-	if (!data->gVideo.pixelfmt) {
-		data->gVideo.pixelfmt = GL_UNSIGNED_SHORT_5_5_5_1;
+	if (!videoInfo->gVideo.pixelfmt) {
+		videoInfo->gVideo.pixelfmt = GL_UNSIGNED_SHORT_5_5_5_1;
 	}
 
-	glGenTextures(1, &data->gVideo.texeture_id);
+	glGenTextures(1, &videoInfo->gVideo.texeture_id);
 
-	if (!data->gVideo.texeture_id) {
+	if (!videoInfo->gVideo.texeture_id) {
 		die("Failed to create the video texture");
 	}
 
-	glBindTexture(GL_TEXTURE_2D, data->gVideo.texeture_id);
+	glBindTexture(GL_TEXTURE_2D, videoInfo->gVideo.texeture_id);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, geometry->max_width, geometry->max_height, 0,
-		data->gVideo.pixeltype, data->gVideo.pixelfmt, NULL);
+		videoInfo->gVideo.pixeltype, videoInfo->gVideo.pixelfmt, NULL);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -107,28 +111,28 @@ void WFLGlClass::init(libretro_external_data* data, retro_game_geometry* geometr
 	//olhar depois
 	init_framebuffer(geometry->max_width, geometry->max_height);
 
-	data->gVideo.texture_w = geometry->max_width;
-	data->gVideo.texture_h = geometry->max_height;
-	data->gVideo.clip_w = geometry->base_width;
-	data->gVideo.clip_h = geometry->base_height;
+	videoInfo->gVideo.texture_w = geometry->max_width;
+	videoInfo->gVideo.texture_h = geometry->max_height;
+	videoInfo->gVideo.clip_w = geometry->base_width;
+	videoInfo->gVideo.clip_h = geometry->base_height;
 
-	SDL_SetWindowSize(data->window, nwidth, nheight);
+	SDL_SetWindowSize(videoInfo->window, nwidth, nheight);
 
-	data->gVideo.hw.context_reset();
+	videoInfo->gVideo.hw.context_reset();
 }
 
 void WFLGlClass::deinit() {
-	glDeleteTextures(1, &externalData->gVideo.texeture_id);
-	glDeleteFramebuffers(1, &externalData->gVideo.fbo_id);
-	glDeleteRenderbuffers(1, &externalData->gVideo.rbo_id);
+	glDeleteTextures(1, &videoInfo->gVideo.texeture_id);
+	glDeleteFramebuffers(1, &videoInfo->gVideo.fbo_id);
+	glDeleteRenderbuffers(1, &videoInfo->gVideo.rbo_id);
 	glDeleteBuffers(1, &gShader.vbo);
 	glDeleteVertexArrays(1, &gShader.vao);
 
 	SDL_GL_DeleteContext(GlCtx);
-	SDL_DestroyWindow(externalData->window);
+	SDL_DestroyWindow(videoInfo->window);
 
 	gShader = {0};
-	externalData->gVideo = {0};
+	videoInfo->gVideo = {0};
 }
 
 void WFLGlClass::createWindow(int width, int height) {
@@ -137,13 +141,13 @@ void WFLGlClass::createWindow(int width, int height) {
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 
-	if (externalData->gVideo.hw.context_type == RETRO_HW_CONTEXT_OPENGL_CORE || externalData->gVideo.hw.version_major >= 3) {
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, externalData->gVideo.hw.version_major);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, externalData->gVideo.hw.version_minor);
+	if (videoInfo->gVideo.hw.context_type == RETRO_HW_CONTEXT_OPENGL_CORE || videoInfo->gVideo.hw.version_major >= 3) {
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, videoInfo->gVideo.hw.version_major);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, videoInfo->gVideo.hw.version_minor);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 	}
 
-	switch (externalData->gVideo.hw.context_type)
+	switch (videoInfo->gVideo.hw.context_type)
 	{
 	case RETRO_HW_CONTEXT_OPENGL_CORE: {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -154,7 +158,7 @@ void WFLGlClass::createWindow(int width, int height) {
 		break;
 	}
 	case RETRO_HW_CONTEXT_OPENGL: {
-		if (externalData->gVideo.glmajor >= 3) {
+		if (videoInfo->gVideo.glmajor >= 3) {
 			SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 		}
 		break;
@@ -162,12 +166,12 @@ void WFLGlClass::createWindow(int width, int height) {
 	default:
 		die(
 			"Unsupported hw context %i. (only OPENGL, OPENGL_CORE and OPENGLES2 supported)", 
-			externalData->gVideo.hw.context_type
+			videoInfo->gVideo.hw.context_type
 		);
 		break;
 	}
 
-	externalData->window = SDL_CreateWindow(
+	videoInfo->window = SDL_CreateWindow(
 		"WFL",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
@@ -176,17 +180,17 @@ void WFLGlClass::createWindow(int width, int height) {
 		SDL_WINDOW_OPENGL
 	);
 
-	if (!externalData->window) {
+	if (!videoInfo->window) {
 		die("Failed to create window: %s", SDL_GetError());
 	}
 
-	GlCtx = SDL_GL_CreateContext(externalData->window);
-	SDL_GL_MakeCurrent(externalData->window, GlCtx);
+	GlCtx = SDL_GL_CreateContext(videoInfo->window);
+	SDL_GL_MakeCurrent(videoInfo->window, GlCtx);
 
 	if (!GlCtx)
 		die("Failed to create OpenGL context: %s", SDL_GetError());
 
-	if (externalData->gVideo.hw.context_type == RETRO_HW_CONTEXT_OPENGLES2) {
+	if (videoInfo->gVideo.hw.context_type == RETRO_HW_CONTEXT_OPENGLES2) {
 		//if (!gladLoadGLES2Loader((GLADloadproc)SDL_GL_GetProcAddress))
 			die("Failed to initialize glad.");
 	}
@@ -198,7 +202,7 @@ void WFLGlClass::createWindow(int width, int height) {
 	initShader();
 
 	SDL_GL_SetSwapInterval(1);
-	SDL_GL_SwapWindow(externalData->window);
+	SDL_GL_SwapWindow(videoInfo->window);
 
 	fprintf(stderr, "GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 	fprintf(stderr, "GL_VERSION: %s\n", glGetString(GL_VERSION));
@@ -257,7 +261,7 @@ void WFLGlClass::initShader() {
 	glUniform1i(gShader.u_tex, 0);
 
 	float m[4][4];
-	if (externalData->gVideo.hw.bottom_left_origin)
+	if (videoInfo->gVideo.hw.bottom_left_origin)
 		ortho2d(m, -1, 1, 1, -1);
 	else
 		ortho2d(m, -1, 1, -1, 1);
@@ -284,24 +288,22 @@ GLuint WFLGlClass::compileShader(unsigned type, unsigned count, const char** str
 	return shader;
 }
 
-bool WFLGlClass::setPixelFormat(unsigned format, libretro_external_data* data) {
-	externalData = data;
-
+bool WFLGlClass::setPixelFormat(unsigned format) {
 	switch (format) {
 	case RETRO_PIXEL_FORMAT_0RGB1555:
-		data->gVideo.pixelfmt = GL_UNSIGNED_SHORT_5_5_5_1;
-		data->gVideo.pixeltype = GL_BGRA;
-		data->gVideo.bpp = sizeof(uint16_t);
+		videoInfo->gVideo.pixelfmt = GL_UNSIGNED_SHORT_5_5_5_1;
+		videoInfo->gVideo.pixeltype = GL_BGRA;
+		videoInfo->gVideo.bpp = sizeof(uint16_t);
 		break;
 	case RETRO_PIXEL_FORMAT_XRGB8888:
-		data->gVideo.pixelfmt = GL_UNSIGNED_INT_8_8_8_8_REV;
-		data->gVideo.pixeltype = GL_BGRA;
-		data->gVideo.bpp = sizeof(uint32_t);
+		videoInfo->gVideo.pixelfmt = GL_UNSIGNED_INT_8_8_8_8_REV;
+		videoInfo->gVideo.pixeltype = GL_BGRA;
+		videoInfo->gVideo.bpp = sizeof(uint32_t);
 		break;
 	case RETRO_PIXEL_FORMAT_RGB565:
-		data->gVideo.pixelfmt = GL_UNSIGNED_SHORT_5_6_5;
-		data->gVideo.pixeltype = GL_RGB;
-		data->gVideo.bpp = sizeof(uint16_t);
+		videoInfo->gVideo.pixelfmt = GL_UNSIGNED_SHORT_5_6_5;
+		videoInfo->gVideo.pixeltype = GL_RGB;
+		videoInfo->gVideo.bpp = sizeof(uint16_t);
 		break;
 	default:
 		die("Unknown pixel type %u", format);
@@ -310,13 +312,13 @@ bool WFLGlClass::setPixelFormat(unsigned format, libretro_external_data* data) {
 }
 
 void WFLGlClass::refreshVertexData() {
-	SDL_assert(externalData->gVideo.texture_w);
-	SDL_assert(externalData->gVideo.texture_h);
-	SDL_assert(externalData->gVideo.clip_w);
-	SDL_assert(externalData->gVideo.clip_h);
+	SDL_assert(videoInfo->gVideo.texture_w);
+	SDL_assert(videoInfo->gVideo.texture_h);
+	SDL_assert(videoInfo->gVideo.clip_w);
+	SDL_assert(videoInfo->gVideo.clip_h);
 
-	float bottom = (float)externalData->gVideo.clip_h / externalData->gVideo.texture_h;
-	float right = (float)externalData->gVideo.clip_w / externalData->gVideo.texture_w;
+	float bottom = (float)videoInfo->gVideo.clip_h / videoInfo->gVideo.texture_h;
+	float right = (float)videoInfo->gVideo.clip_w / videoInfo->gVideo.texture_w;
 
 	float vertex_data[] = {
 		// pos, coord
@@ -354,27 +356,27 @@ void WFLGlClass::resizeToAspect(double ratio, int sw, int sh, int* dw, int* dh) 
 }
 
 void WFLGlClass:: videoRefresh(const void* data, unsigned width, unsigned height, unsigned pitch) {
-	if (externalData->gVideo.clip_w != width || externalData->gVideo.clip_h != height)
+	if (videoInfo->gVideo.clip_w != width || videoInfo->gVideo.clip_h != height)
 	{
-		externalData->gVideo.clip_h = height;
-		externalData->gVideo.clip_w = width;
+		videoInfo->gVideo.clip_h = height;
+		videoInfo->gVideo.clip_w = width;
 
 		refreshVertexData();
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glBindTexture(GL_TEXTURE_2D, externalData->gVideo.texeture_id);
+	glBindTexture(GL_TEXTURE_2D, videoInfo->gVideo.texeture_id);
 
-		externalData->gVideo.pitch = pitch;
+		videoInfo->gVideo.pitch = pitch;
 
 	if (data && data != RETRO_HW_FRAME_BUFFER_VALID) {
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, externalData->gVideo.pitch / externalData->gVideo.bpp);
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, videoInfo->gVideo.pitch / videoInfo->gVideo.bpp);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-			externalData->gVideo.pixeltype, externalData->gVideo.pixelfmt, data);
+			videoInfo->gVideo.pixeltype, videoInfo->gVideo.pixelfmt, data);
 	}
 
 	int w = 0, h = 0;
-	SDL_GetWindowSize(externalData->window, &w, &h);
+	SDL_GetWindowSize(videoInfo->window, &w, &h);
 	glViewport(0, 0, w, h);
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -384,7 +386,7 @@ void WFLGlClass:: videoRefresh(const void* data, unsigned width, unsigned height
 	
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, externalData->gVideo.texeture_id);
+	glBindTexture(GL_TEXTURE_2D, videoInfo->gVideo.texeture_id);
 
 
 	glBindVertexArray(gShader.vao);
@@ -393,5 +395,5 @@ void WFLGlClass:: videoRefresh(const void* data, unsigned width, unsigned height
 
 	glUseProgram(0);
 
-	SDL_GL_SwapWindow(externalData->window);
+	SDL_GL_SwapWindow(videoInfo->window);
 }

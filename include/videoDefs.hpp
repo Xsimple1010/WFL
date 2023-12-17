@@ -1,6 +1,7 @@
 #ifndef VIDEO_VARIABLES_H
 #define VIDEO_VARIABLES_H
 
+#include "SDL2/SDL.h"
 #include "glad/glad.h"
 #include "libretro.h"
 
@@ -40,4 +41,11 @@ typedef struct {
 
 } g_shader_t;
 
-#endif // TEs
+
+struct video_info {
+	g_video_t gVideo;
+	g_scale_t gScale;
+	SDL_Window* window = NULL;
+};
+
+#endif // VIDEO_VARIABLES_H

@@ -4,16 +4,20 @@ WFLGlClass WFLGl;
 
 //esse arquivo sera usando para o swap de APIs gráficas
 
-void VideoClass::init(libretro_external_data* data, retro_game_geometry* geometry) {
-	WFLGl.init(data, geometry);
+void VideoClass::setInfo(video_info* info) {
+	WFLGl.setInfo(info);
+}
+
+void VideoClass::init(retro_game_geometry* geometry) {
+	WFLGl.init(geometry);
 }
 
 void VideoClass::deinit() {
 	WFLGl.deinit();
 }
 
-bool VideoClass::setPixelFormat(unsigned format, libretro_external_data* data) {
-	return WFLGl.setPixelFormat(format, data);
+bool VideoClass::setPixelFormat(unsigned format) {
+	return WFLGl.setPixelFormat(format);
 }
 
 void VideoClass::refreshVertexData() {

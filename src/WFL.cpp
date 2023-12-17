@@ -7,32 +7,37 @@
 #include "CpuFeatures.hpp"
 #include "Audio.hpp"
 #include "Video.hpp"
-#include "threads/ioEvents.hpp"
+#include "threads/threadIoEvents.hpp"
+#include "threads/threadGameLoop.hpp"
 #include "WFL.h"
+#include "gameLoop.hpp"
+#include <thread>
 
-static bool running = false;
+static bool running = true;
 static SDL_Event event;
+static bool singleThread = false;
 
 static controller_internal_events controllerInternalEvents;
 static controller_events controllerEvents;
 static libretro_external_data externalCoreData;
 static core_event_functions eventFunction; 
+static video_info videoInfo;
 
-static Libretro libretro = Libretro(&eventFunction, &externalCoreData);
+static Libretro libretro = Libretro(&eventFunction, &externalCoreData, &videoInfo);
 static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
 static VideoClass video;
+static AudioClass audio;
 
 //audio events
 static void audioSample(int16_t left, int16_t right) {
 	int16_t buffer[2] = { left, right };
 
-	audioWrite(buffer, 1);
+	audio.audioWrite(buffer, 1);
 }
 
 static size_t audioSampleBatch(const int16_t* data, size_t frames) {
-	return audioWrite(data, frames);
+	return audio.audioWrite(data, frames);
 }
-
 
 //controller events
 static void inputPoll() {
@@ -41,7 +46,6 @@ static void inputPoll() {
 
 static int16_t inputState(unsigned port, unsigned device, unsigned index, unsigned id) {
 	return controller.inputState(port, device, index, id);
-	return 0;
 }
 
 static void onDeviceAppend(controller_device device) {
@@ -51,12 +55,8 @@ static void onDeviceAppend(controller_device device) {
 }
 
 //video events
-static void videoInit(retro_game_geometry *geometry) {
-	video.init(&externalCoreData, geometry);
-};
-
 static bool setPixelFormat(unsigned format) {
-	return video.setPixelFormat(format, &externalCoreData);
+	return video.setPixelFormat(format);
 }
 
 static void refreshVertexData() {
@@ -85,24 +85,22 @@ static void initializeVariables() {
 	eventFunction.inputPoll = inputPoll;
 	eventFunction.inputState = inputState;
 
-	externalCoreData.window = NULL;
-	externalCoreData.gVideo = {0};
-	externalCoreData.gScale = 2;
-	externalCoreData.audioCallback;
-	externalCoreData.runLoopFrameTime;
 	externalCoreData.runLoopFrameTimeLast = 0;
 
-	externalCoreData.gVideo.hw.version_major = 4;
-	externalCoreData.gVideo.hw.version_minor = 5;
-	externalCoreData.gVideo.hw.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
-	externalCoreData.gVideo.hw.context_reset = noop;
-	externalCoreData.gVideo.hw.context_destroy = noop;
+	videoInfo.window = NULL;
+	videoInfo.gVideo = {0};
+	videoInfo.gScale = 2;
+	videoInfo.gVideo.hw.version_major = 4;
+	videoInfo.gVideo.hw.version_minor = 5;
+	videoInfo.gVideo.hw.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
+	videoInfo.gVideo.hw.context_reset = noop;
+	videoInfo.gVideo.hw.context_destroy = noop;
 }
 //===========================================
 
 
 //WFLAPI
-void wflInit(controller_events events, wfl_paths paths) {
+void wflInit(bool isSingleThread, controller_events events, wfl_paths paths) {
 	controllerEvents.onConnect = events.onConnect;
 	controllerEvents.onDisconnect = events.onDisconnect;
 
@@ -112,6 +110,8 @@ void wflInit(controller_events events, wfl_paths paths) {
 	externalCoreData.paths.system = paths.system;
 
 	running = true;
+	singleThread = isSingleThread;
+
 	initThreadIoEvents(&running, &controller);
 }
 
@@ -121,67 +121,16 @@ void wflLoadCore(const char* path) {
 	libretro.coreLoad(path);
 }
 
-void wflLoadGame(const char* path) {
-	if(libretro.gameIsLoaded) return;
+void wflStop() {
+	running = false;
+	deinitThreadIoEvents();
+}
 
-	retro_system_av_info avInfo = libretro.loadGame(path);
-
-	videoInit(&avInfo.geometry);
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
-	audioInit(avInfo.timing.sample_rate);
-
-	
-	while (running) {
-
-		if (externalCoreData.runLoopFrameTime.callback) {
-			retro_time_t current = cpuFeaturesGetTimeUsec();
-			retro_time_t delta = current - externalCoreData.runLoopFrameTimeLast;
-
-			if (!externalCoreData.runLoopFrameTimeLast) {
-				delta = externalCoreData.runLoopFrameTime.reference;
-			}
-
-			externalCoreData.runLoopFrameTimeLast = current;
-			externalCoreData.runLoopFrameTime.callback(delta);
-		}
-
-		if (externalCoreData.audioCallback.callback) {
-			externalCoreData.audioCallback.callback();
-		}
-
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT: {
-					running = false; break;
-					break;
-				}
-			
-				case SDL_WINDOWEVENT:
-				{
-					switch (event.window.event) {
-
-						case SDL_WINDOWEVENT_CLOSE: 
-						{
-							running = false;
-							break;
-						}
-
-						//case SDL_WINDOWEVENT_RESIZED:
-							//resize_cb(ev.window.data1, ev.window.data2);
-							//break;
-					}
-
-				}
-            }
-		}
-
-		libretro.run();
-	}
+void wflDeinit() {
+	running = false;
 
 	video.deinit();
-	audioDeinit();
+	audio.audioDeinit();
 	controller.deinit();
 	libretro.deinit();
 
@@ -190,21 +139,32 @@ void wflLoadGame(const char* path) {
     SDL_Quit();
 }
 
+void wflLoadGame(const char* path) {
+	if(libretro.gameIsLoaded) return;
+
+	game_loop_params gameParams;
+
+	gameParams.gamePath = path;
+	gameParams.running = &running;
+	gameParams.audio = &audio;
+	gameParams.videoInfo = &videoInfo;
+	gameParams.video = &video;
+	gameParams.libretro = &libretro;
+	gameParams.externalCoreData = &externalCoreData;
+
+
+	if(singleThread) {
+		gameLoop(gameParams);
+		wflDeinit();
+	} else {
+		initThreadGame(gameParams);
+	}
+}
+
 void wflSetController(controller_device device) {
 	controller.append(device);
 }
 
-
 vector<wfl_joystick> wflGetConnectedJoysticks() {
 	return controller.getConnectedJoysticks();
-}
-
-void wflStop() {
-	running = false;
-	deinitThreadIoEvents();
-}
-
-void wflDeinit() {
-	libretro.deinit();
-	running = false;
 }

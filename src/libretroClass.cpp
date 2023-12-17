@@ -2,10 +2,12 @@
 
 static libretro_external_data* externalData;
 static core_event_functions* eventFunctions;
+static video_info* videoInfo;
 
-Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* exterData) {
-    externalData = exterData;
+Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* externData, video_info* vInfo) {
+    externalData = externData;
     eventFunctions = eventFuncs;
+    videoInfo = vInfo;
 }
 
 void Libretro::run() {
@@ -168,7 +170,7 @@ static void core_log(enum retro_log_level level, const char* fmt, ...) {
 }
 
 static uintptr_t core_get_current_framebuffer() {
-    return externalData->gVideo.fbo_id;
+    return videoInfo->gVideo.fbo_id;
 }
 
 /**
@@ -287,7 +289,7 @@ static bool environment(unsigned cmd, void* data) {
         struct retro_hw_render_callback* hw = (struct retro_hw_render_callback*)data;
         hw->get_current_framebuffer = core_get_current_framebuffer;
         hw->get_proc_address = (retro_hw_get_proc_address_t)SDL_GL_GetProcAddress;
-        externalData->gVideo.hw = *hw;
+        videoInfo->gVideo.hw = *hw;
         return true;
     }
     case RETRO_ENVIRONMENT_SET_FRAME_TIME_CALLBACK: {
@@ -314,20 +316,20 @@ static bool environment(unsigned cmd, void* data) {
     }
     case RETRO_ENVIRONMENT_SET_GEOMETRY: {
         const struct retro_game_geometry* geom = (const struct retro_game_geometry*)data;
-        externalData->gVideo.clip_w = geom->base_width;
-        externalData->gVideo.clip_h = geom->base_height;
+        videoInfo->gVideo.clip_w = geom->base_width;
+        videoInfo->gVideo.clip_h = geom->base_height;
 
         // some cores call this before we even have a window
-        if (externalData->window) {
+        if (videoInfo->window) {
             eventFunctions->refreshVertexData();
 
             int ow = 0, oh = 0;
             eventFunctions->resizeToAspect(geom->aspect_ratio, geom->base_width, geom->base_height, &ow, &oh);
 
-            ow *= externalData->gScale;
-            oh *= externalData->gScale;
+            ow *= videoInfo->gScale;
+            oh *= videoInfo->gScale;
 
-            SDL_SetWindowSize(externalData->window, ow, oh);
+            SDL_SetWindowSize(videoInfo->window, ow, oh);
         }
         return true;
     }

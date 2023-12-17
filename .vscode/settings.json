@@ -71,6 +71,7 @@
         "OPENGL",
         "RIGHTSHOULDER",
         "WFLAPI",
-        "WINDOWEVENT"
+        "WINDOWEVENT",
+        "WINDOWPOS"
     ]
 }

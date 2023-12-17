@@ -51,10 +51,7 @@ struct core_event_functions {
 struct libretro_external_data {
 	struct retro_audio_callback audioCallback;
 	struct retro_frame_time_callback runLoopFrameTime;
-	g_video_t gVideo;
 	retro_usec_t runLoopFrameTimeLast;
-	g_scale_t gScale;
-	SDL_Window* window = NULL;
 	struct wfl_paths paths;
 };
 
@@ -69,7 +66,7 @@ class Libretro
 		bool coreIsLoaded;
 		bool gameIsLoaded;
 
-		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData);
+		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData, video_info* vInfo);
 		void coreLoad(const char* coreFile);
 		retro_system_av_info loadGame(const char* gameFile);
 		retro_system_info getSystemInfo();
