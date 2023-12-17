@@ -20,6 +20,7 @@ set(WFL_SOURCE
   src/audio.cpp
   src/video.cpp
   src/controller.cpp
+  src/threads/ioEvents.cpp
   
   #OPENGL
   src/WFL_GL/wflGl.cpp

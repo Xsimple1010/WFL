@@ -17,6 +17,7 @@ void WFLAPI wflInit(struct controller_events events, wfl_paths paths);
 void WFLAPI wflLoadCore(const char* path);
 void WFLAPI wflLoadGame(const char* path);
 //void wflPause();
+void wflStop();
 void WFLAPI wflSetController(struct controller_device device);
 vector<wfl_joystick> WFLAPI wflGetConnectedJoysticks();
 

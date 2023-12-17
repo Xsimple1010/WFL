@@ -66,6 +66,9 @@ static retro_variable* g_vars = NULL;
 class Libretro
 {
 	public:
+		bool coreIsLoaded;
+		bool gameIsLoaded;
+
 		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData);
 		void coreLoad(const char* coreFile);
 		retro_system_av_info loadGame(const char* gameFile);

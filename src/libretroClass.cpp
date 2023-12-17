@@ -62,6 +62,7 @@ void Libretro::coreLoad(const char* coreFile) {
 	}
 
     retroFunctions.retro_init();
+    coreIsLoaded = true;
     retroFunctions.initialized = true;
 }
 
@@ -76,6 +77,8 @@ void Libretro::deinit() {
         SDL_UnloadObject(retroFunctions.handle);
     }
     
+    coreIsLoaded = false;
+    gameIsLoaded = false;
     retroFunctions = { 0 };
 }
 
@@ -132,6 +135,8 @@ retro_system_av_info Libretro::loadGame(const char* fileName) {
 		SDL_free((void*)gameInfo.data);
 	}
 
+
+    gameIsLoaded = true;
 	return SysAvInfo;
 }
 

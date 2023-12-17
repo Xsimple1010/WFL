@@ -10,12 +10,15 @@ ControllerClass::ControllerClass(controller_events* events, controller_internal_
 }
 
 void ControllerClass::deinit() {
+	mtxDevice.lock();
 	for (controller_device device :devices)
 	{
 		SDL_GameControllerClose(device.nativeInfo.controllerToken);
 	}
 
 	devices.clear();
+
+	mtxDevice.unlock();
 }
 
 vector<wfl_joystick> ControllerClass::getConnectedJoysticks() {
@@ -40,25 +43,42 @@ vector<wfl_joystick> ControllerClass::getConnectedJoysticks() {
 	return joysticks;
 }
 
-void ControllerClass::append(controller_device newDevice) {
-	if(newDevice.port > deviceMaxSize) return;
 
-	for (controller_device device : devices)
+void ControllerClass::append(controller_device newDevice) {
+	mtxDevice.lock();
+	if(newDevice.port > deviceMaxSize) {
+		mtxDevice.unlock();
+		return;
+	};
+
+	if(devices.empty()) {
+		mtxDevice.unlock();
+		devices.push_back(newDevice);
+		internalCallbacks->onAppend(newDevice);
+		return;
+	}
+
+
+	bool exist = false;
+	for (controller_device& device : devices)
 	{
 		if(device.id == newDevice.id) {
 			device = newDevice;
+			exist = true;
+			break;
 		}
 	}
 
-	if(devices.empty()) {
-		devices.push_back(newDevice);
+	if(!exist) {
+		internalCallbacks->onAppend(newDevice);
 	}
-	 
-	internalCallbacks->onAppend(newDevice);
+
+	mtxDevice.unlock();
 }
 
 void ControllerClass::inputPoll()
-{
+{	
+	mtxDevice.lock();
 	for (controller_device device : devices) 
 	{	
 		if(device.nativeInfo.type == WFL_DEVICE_JOYSTICK){
@@ -76,9 +96,12 @@ void ControllerClass::inputPoll()
 			}
 		}
 	}
+	mtxDevice.unlock();
 }
 
 int16_t ControllerClass::inputState(unsigned port, unsigned deviceType, unsigned index, unsigned id) {
+	mtxDevice.lock();
+	
 	if(port > devices.max_size()){
 		return 0;
 	}
@@ -86,9 +109,12 @@ int16_t ControllerClass::inputState(unsigned port, unsigned deviceType, unsigned
 	for (const controller_device device : devices)
 	{
 		if(device.type == deviceType) {
+			mtxDevice.unlock();
 			return GJoy[id];
 		}
 	}
+	
+	mtxDevice.unlock();
 
 	return 0;
 }
@@ -105,6 +131,8 @@ void ControllerClass::onConnect(SDL_JoystickID id) {
 
 
 void ControllerClass::onDisconnect(SDL_JoystickID id) {
+	mtxDevice.lock();
+
 	controller_device rmDevice;
 	
 	for (controller_device device : devices) 
@@ -121,8 +149,5 @@ void ControllerClass::onDisconnect(SDL_JoystickID id) {
 		devices.erase(std::find(devices.begin(), devices.end(), rmDevice));
 	}
 
-}
-
-void ControllerClass::checkerChanges() {
-	
+	mtxDevice.unlock();
 }

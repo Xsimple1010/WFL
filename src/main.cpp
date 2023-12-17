@@ -77,6 +77,8 @@ int main(int argc, char* argv[]) {
     wflInit(events, paths);
     wflLoadCore(corePath.c_str());
     wflLoadGame(romPath.c_str());
-    // wflStop();
+    wflStop();
+
+	
     return 0;
 }

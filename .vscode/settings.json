@@ -60,13 +60,16 @@
         "cdevice",
         "CONTROLLERDEVICEADDED",
         "CONTROLLERDEVICEREMOVED",
+        "DPAD",
         "FRAMEBUFFER",
         "GAMECONTROLLER",
         "JOYPAD",
+        "LEFTSHOULDER",
         "libretro",
         "Libretro",
         "LIBRETRO",
         "OPENGL",
+        "RIGHTSHOULDER",
         "WFLAPI",
         "WINDOWEVENT"
     ]

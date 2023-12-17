@@ -6,9 +6,10 @@
 #include <vector>
 #include <xmemory>
 #include "controllerDefs.hpp"
+#include <mutex>
 
 using std::vector;
-
+using std::mutex;
 static size_t const deviceMaxSize = 6;
 
 class ControllerClass {
@@ -16,6 +17,7 @@ class ControllerClass {
 		vector<controller_device> devices;
 		controller_events* callbacks;
 		controller_internal_events* internalCallbacks;
+		mutex mtxDevice;
 
 	public:
 		ControllerClass(struct controller_events* events, controller_internal_events* inEvents);
