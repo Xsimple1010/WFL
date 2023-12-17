@@ -10,8 +10,7 @@ endif()
 
 project(WFL)
 
-add_executable(WFL
-  src/main.cpp
+set(WFL_SOURCE 
   src/WFL.cpp
   src/CpuFeatures.cpp
   
@@ -33,11 +32,25 @@ add_executable(WFL
   include/libretro.h
 )
 
+# set(MAKE_WFL_LIB  true)
+
+if(MAKE_WFL_LIB)
+add_library(WFL SHARED
+  ${WFL_SOURCE}
+)
+else()
+add_executable(WFL
+  src/main.cpp
+  ${WFL_SOURCE}
+)
+endif()
+
+
 find_package(SDL2 REQUIRED)
 
 target_include_directories(WFL
-    PUBLIC include/
-    PUBLIC ${SDL2_INCLUDE_DIRS}
+  PUBLIC include/
+  PUBLIC ${SDL2_INCLUDE_DIRS}
 )
 
 link_libraries(include/glad/glad.h /src/glad.c)
