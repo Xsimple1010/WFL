@@ -84,7 +84,7 @@ void ControllerClass::inputPoll()
 		if(device.nativeInfo.type == WFL_DEVICE_JOYSTICK){
 			for (joystick_keymap keymap : device.joystickKeyBinds)
 			{
-				GJoy[keymap.retro] = SDL_GameControllerGetButton(device.nativeInfo.controllerToken, keymap.native);
+				GJoy[keymap.retro] = SDL_GameControllerGetButton(device.nativeInfo.controllerToken, (SDL_GameControllerButton)keymap.native);
 			}
 		} else if(device.nativeInfo.type == WFL_DEVICE_KEYBOARD) {
 			int i;

@@ -12,6 +12,12 @@ using std::vector;
 using std::mutex;
 static size_t const deviceMaxSize = 6;
 
+typedef void on_device_append_t(controller_device device);
+
+struct controller_internal_events {
+	on_device_append_t* onAppend;
+};
+
 class ControllerClass {
 	private:
 		vector<controller_device> devices;
