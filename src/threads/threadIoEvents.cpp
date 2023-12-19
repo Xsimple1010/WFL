@@ -1,6 +1,4 @@
 #include "threads/threadIoEvents.hpp"
-#include "debug.hpp"
-#include <thread>
 
 static SDL_Event event;
 
