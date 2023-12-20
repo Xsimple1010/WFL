@@ -5,6 +5,8 @@
 #include "LibretroClass.hpp"
 #include "Video.hpp"
 #include "Audio.hpp"
+#include "debug.hpp"
+#include "CpuFeatures.hpp"
 
 struct game_loop_params {
     bool* playing;

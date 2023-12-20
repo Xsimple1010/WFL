@@ -1,17 +1,12 @@
-#include <SDL.h>
-#include <iostream>
-
+#include "SDL.h"
 #include "Controller.hpp"
 #include "LibretroClass.hpp"
-#include "debug.hpp"
-#include "CpuFeatures.hpp"
 #include "Audio.hpp"
 #include "Video.hpp"
 #include "threads/threadIoEvents.hpp"
 #include "threads/threadGameLoop.hpp"
 #include "WFL.h"
 #include "gameLoop.hpp"
-#include <thread>
 
 static bool running = false;
 static bool playing = false;
