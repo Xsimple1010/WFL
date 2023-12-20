@@ -74,10 +74,10 @@ int main(int argc, char* argv[]) {
 	paths.save = savePath.c_str();
 	paths.system = systemPath.c_str();
 
-    wflInit(true, events, paths);
+    wflInit(false, true, events, paths);
     wflLoadCore(corePath.c_str());
     wflLoadGame(romPath.c_str());
-    wflStop();
+    // wflStop();
 
 	
     return 0;

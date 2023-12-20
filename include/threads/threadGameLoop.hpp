@@ -7,6 +7,8 @@
 #include "Audio.hpp"
 #include "gameLoop.hpp"
 
-void initThreadGame(game_loop_params params);
+typedef void thread_game_deinit_handle(game_loop_params params, bool *fullDeinit, bool* running, ControllerClass *controller);
+
+void initThreadGame(game_loop_params params, thread_game_deinit_handle handleDeinit,  bool *fullDeinit, bool* running, ControllerClass *controller);
 
 #endif

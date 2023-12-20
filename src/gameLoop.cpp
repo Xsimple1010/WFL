@@ -8,19 +8,21 @@ void gameLoop(game_loop_params params) {
 	auto libretro = params.libretro;
 	auto path = params.gamePath;
 	auto audio = params.audio;
-	auto running = params.running;
+	auto playing = params.playing;
+	auto pause = params.pause;
 	auto externalCoreData = params.externalCoreData;
 
 	video->setInfo(videoInfo);
 	retro_system_av_info avInfo = libretro->loadGame(path);
 
 	video->init(&avInfo.geometry);
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
     }
 	audio->audioInit(avInfo.timing.sample_rate);
 
-	while (*running) {
+	while (*playing) {
+		if(*pause) return;
 
 		if (externalCoreData->runLoopFrameTime.callback) {
 			retro_time_t current = cpuFeaturesGetTimeUsec();
@@ -42,7 +44,9 @@ void gameLoop(game_loop_params params) {
 		while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT: {
-					*running = false;
+					std::cout << "quit" << std::endl;
+					*playing = false;
+					*pause = true;
 					break;
 				}
 			
@@ -52,7 +56,8 @@ void gameLoop(game_loop_params params) {
 
 						case SDL_WINDOWEVENT_CLOSE: 
 						{
-							*running = false;
+							*playing = false;
+							*pause = true;
 							break;
 						}
 

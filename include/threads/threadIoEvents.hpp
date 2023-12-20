@@ -4,10 +4,8 @@
 #include <SDL.h>
 #include "Controller.hpp"
 
-void initThreadIoEvents(bool* running, ControllerClass* controller);
+void initThreadIoEvents(bool* running, bool* playing, ControllerClass* controller);
 
-void deinitThreadIoEvents();
-
-static void eventLoop(bool* running, ControllerClass* controller);
+static void eventLoop(bool* running, bool* playing, ControllerClass* controller);
 
 #endif

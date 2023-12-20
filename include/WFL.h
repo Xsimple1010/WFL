@@ -13,7 +13,12 @@
 
 using std::vector;
 
-void WFLAPI wflInit(bool isSingleThread, struct controller_events events, wfl_paths paths);
+void WFLAPI wflInit( 
+    bool isSingleThread, 
+    bool deinitOnStop, 
+    struct controller_events events, 
+    wfl_paths paths
+);
 void WFLAPI wflLoadCore(const char* path);
 void WFLAPI wflLoadGame(const char* path);
 //void wflPause();

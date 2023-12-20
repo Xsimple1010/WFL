@@ -7,7 +7,8 @@
 #include "Audio.hpp"
 
 struct game_loop_params {
-    bool* running; 
+    bool* playing;
+    bool* pause; 
     Libretro* libretro;
     libretro_external_data* externalCoreData;
     VideoClass* video;

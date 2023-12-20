@@ -13,7 +13,10 @@
 #include "gameLoop.hpp"
 #include <thread>
 
-static bool running = true;
+static bool running = false;
+static bool playing = false;
+static bool pause = true;
+static bool enableFullDeinit = true;
 static SDL_Event event;
 static bool singleThread = false;
 
@@ -100,7 +103,7 @@ static void initializeVariables() {
 
 
 //WFLAPI
-void wflInit(bool isSingleThread, controller_events events, wfl_paths paths) {
+void wflInit(bool isSingleThread, bool fullDeinit, controller_events events, wfl_paths paths) {
 	controllerEvents.onConnect = events.onConnect;
 	controllerEvents.onDisconnect = events.onDisconnect;
 
@@ -111,8 +114,9 @@ void wflInit(bool isSingleThread, controller_events events, wfl_paths paths) {
 
 	running = true;
 	singleThread = isSingleThread;
+	enableFullDeinit = fullDeinit;
 
-	initThreadIoEvents(&running, &controller);
+	initThreadIoEvents(&running, &playing, &controller);
 }
 
 void wflLoadCore(const char* path) {
@@ -122,30 +126,67 @@ void wflLoadCore(const char* path) {
 }
 
 void wflStop() {
-	running = false;
-	deinitThreadIoEvents();
-}
-
-void wflDeinit() {
-	running = false;
+	playing = false;
+	pause = true;
 
 	video.deinit();
 	audio.audioDeinit();
-	controller.deinit();
 	libretro.deinit();
 
 	externalCoreData = { 0 };
     eventFunction = { 0 };
-    SDL_Quit();
 }
 
+void wflDeinit() {
+	wflStop();
+
+	controller.deinit();
+
+    SDL_Quit();
+	
+	running = false;
+}
+
+//gameThread deinit
+void gameThreadStop(game_loop_params params) {
+	*params.playing = false;
+	*params.pause = true;
+
+	params.video->deinit();
+	params.audio->audioDeinit();
+	params.libretro->deinit();
+}
+
+void gameThreadDeinit(game_loop_params params, bool* running, ControllerClass* controller) {
+	gameThreadStop(params);
+
+	controller->deinit();
+
+    SDL_Quit();
+
+	*running =  false;
+}
+
+void deinitHandle(game_loop_params params, bool* fullDeinit, bool* running, ControllerClass* controller) {
+	if(*fullDeinit) {
+		gameThreadDeinit(params, running, controller);
+	} else {
+		gameThreadStop(params);
+	}
+}
+
+//=======================
 void wflLoadGame(const char* path) {
 	if(libretro.gameIsLoaded) return;
+	
+	playing = true;
+	pause = false;
 
 	game_loop_params gameParams;
 
 	gameParams.gamePath = path;
-	gameParams.running = &running;
+	gameParams.playing = &playing;
+	gameParams.pause = &pause;
 	gameParams.audio = &audio;
 	gameParams.videoInfo = &videoInfo;
 	gameParams.video = &video;
@@ -155,10 +196,23 @@ void wflLoadGame(const char* path) {
 
 	if(singleThread) {
 		gameLoop(gameParams);
-		wflDeinit();
+
+		if(enableFullDeinit) {
+			wflDeinit();
+		} else {
+			wflStop();
+		}
+
 	} else {
-		initThreadGame(gameParams);
+		initThreadGame(gameParams, deinitHandle, &enableFullDeinit, &running, &controller);
 	}
+
+
+	while (running)
+	{
+		/* code */
+	}
+	
 }
 
 void wflSetController(controller_device device) {
