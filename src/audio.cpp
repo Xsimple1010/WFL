@@ -2,7 +2,7 @@
 
 static SDL_AudioDeviceID  audioDeviceID;
 
-bool AudioClass::audioInit(int frequency) {
+bool AudioClass::init(int frequency) {
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
 
@@ -26,11 +26,11 @@ bool AudioClass::audioInit(int frequency) {
 	return true;
 }
 
-void AudioClass::audioDeinit() {
+void AudioClass::deinit() {
 	SDL_CloseAudioDevice(audioDeviceID);
 }
 
-size_t AudioClass::audioWrite(const int16_t *buffer, size_t frames) {
+size_t AudioClass::write(const int16_t *buffer, size_t frames) {
 	int channels = 2;
 	SDL_QueueAudio(audioDeviceID, buffer, sizeof(*buffer) * frames * channels);
 

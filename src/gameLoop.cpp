@@ -19,7 +19,7 @@ void gameLoop(game_loop_params params) {
 	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
     }
-	audio->audioInit(avInfo.timing.sample_rate);
+	audio->init(avInfo.timing.sample_rate);
 
 	while (*playing) {
 		if(*pause) return;

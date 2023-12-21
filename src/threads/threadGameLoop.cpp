@@ -6,7 +6,7 @@ static void gameThreadStop(game_loop_params params,  thread_game_extra_data_dein
 	*params.pause = true;
 
 	params.video->deinit();
-	params.audio->audioDeinit();
+	params.audio->deinit();
 	params.libretro->deinit();
 
 	std::cout << "gameThreadStop" << std::endl;

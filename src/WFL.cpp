@@ -30,11 +30,11 @@ static AudioClass audio;
 static void audioSample(int16_t left, int16_t right) {
 	int16_t buffer[2] = { left, right };
 
-	audio.audioWrite(buffer, 1);
+	audio.write(buffer, 1);
 }
 
 static size_t audioSampleBatch(const int16_t* data, size_t frames) {
-	return audio.audioWrite(data, frames);
+	return audio.write(data, frames);
 }
 
 //controller events
@@ -125,7 +125,7 @@ void wflStop() {
 	pause = true;
 
 	video.deinit();
-	audio.audioDeinit();
+	audio.deinit();
 	libretro.deinit();
 
 	externalCoreData = { 0 };
