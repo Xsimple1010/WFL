@@ -278,8 +278,6 @@ static bool environment(unsigned cmd, void* data) {
     }
     case RETRO_ENVIRONMENT_SET_PIXEL_FORMAT: {
         const enum retro_pixel_format* fmt = (enum retro_pixel_format*)data;
-        std::cout << "env -> " << *fmt << std::endl;
-
         if (*fmt > RETRO_PIXEL_FORMAT_RGB565)
             return false;
 
