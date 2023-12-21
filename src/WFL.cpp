@@ -17,11 +17,12 @@ static bool singleThread = false;
 
 static controller_internal_events controllerInternalEvents;
 static controller_events controllerEvents;
+static game_events gameEvents;
 static libretro_external_data externalCoreData;
-static core_event_functions eventFunction; 
+static core_event_functions coreEvents; 
 static video_info videoInfo;
 
-static Libretro libretro = Libretro(&eventFunction, &externalCoreData, &videoInfo);
+static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, &videoInfo);
 static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
 static VideoClass video;
 static AudioClass audio;
@@ -74,14 +75,14 @@ static void videoRefresh(const void* data, unsigned width, unsigned height, size
 static void noop() {}
 
 static void initializeVariables() {
-	eventFunction.setPixelFormat = setPixelFormat;
-	eventFunction.refreshVertexData = refreshVertexData;
-	eventFunction.resizeToAspect = resizeToAspect;
-	eventFunction.videoRefresh = videoRefresh;
-	eventFunction.audioSample = audioSample;
-	eventFunction.audioSampleBatch = audioSampleBatch;
-	eventFunction.inputPoll = inputPoll;
-	eventFunction.inputState = inputState;
+	coreEvents.setPixelFormat = setPixelFormat;
+	coreEvents.refreshVertexData = refreshVertexData;
+	coreEvents.resizeToAspect = resizeToAspect;
+	coreEvents.videoRefresh = videoRefresh;
+	coreEvents.audioSample = audioSample;
+	coreEvents.audioSampleBatch = audioSampleBatch;
+	coreEvents.inputPoll = inputPoll;
+	coreEvents.inputState = inputState;
 
 	externalCoreData.runLoopFrameTimeLast = 0;
 
@@ -98,14 +99,15 @@ static void initializeVariables() {
 
 
 //WFLAPI
-void wflInit(bool isSingleThread, bool fullDeinit, controller_events events, wfl_paths paths) {
+void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths) {
 	controllerEvents.onConnect = events.onConnect;
 	controllerEvents.onDisconnect = events.onDisconnect;
+	gameEvents.onGameClose = events.onGameClose;
+	gameEvents.onGameStart = events.onGameStart;
+
+	externalCoreData.paths = paths;
 
 	controllerInternalEvents.onAppend = onDeviceAppend;
-
-	externalCoreData.paths.save = paths.save;
-	externalCoreData.paths.system = paths.system;
 
 	running = true;
 	singleThread = isSingleThread;
@@ -129,7 +131,7 @@ void wflStop() {
 	libretro.deinit();
 
 	externalCoreData = { 0 };
-    eventFunction = { 0 };
+    coreEvents = { 0 };
 }
 
 void wflDeinit() {
@@ -140,6 +142,14 @@ void wflDeinit() {
     SDL_Quit();
 	
 	running = false;
+}
+
+void wflResume() {
+	pause = false;
+}
+
+void wflPause() {
+	pause = true;
 }
 
 void wflLoadGame(const char* path) {

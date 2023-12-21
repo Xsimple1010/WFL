@@ -14,6 +14,11 @@
 	} while (0)
 #define load_retro_sym(S) load_sym(retroFunctions.S, S)
 
+struct game_events {
+	on_game_close* onGameClose;
+	on_game_start* onGameStart;
+};
+
 static struct {
 	void* handle;
 	bool initialized;
@@ -66,7 +71,7 @@ class Libretro
 		bool coreIsLoaded;
 		bool gameIsLoaded;
 
-		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData, video_info* vInfo);
+		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData, game_events* gameEvents, video_info* vInfo);
 		void coreLoad(const char* coreFile);
 		retro_system_av_info loadGame(const char* gameFile);
 		retro_system_info getSystemInfo();

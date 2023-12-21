@@ -3,11 +3,13 @@
 static libretro_external_data* externalData;
 static core_event_functions* eventFunctions;
 static video_info* videoInfo;
+static game_events* gameEvents;
 
-Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* externData, video_info* vInfo) {
+Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* externData, game_events* gEvents, video_info* vInfo) {
     externalData = externData;
     eventFunctions = eventFuncs;
     videoInfo = vInfo;
+    gameEvents = gEvents;
 }
 
 void Libretro::run() {
@@ -70,9 +72,8 @@ void Libretro::coreLoad(const char* coreFile) {
 
 void Libretro::deinit() {
     if(!retroFunctions.initialized) return;
-    retroFunctions.initialized = false;
     
-    retroFunctions.retro_unload_game();
+    unloadGame();
     
     retroFunctions.retro_deinit();
     if (retroFunctions.handle) {
@@ -81,11 +82,13 @@ void Libretro::deinit() {
     
     coreIsLoaded = false;
     gameIsLoaded = false;
+    retroFunctions.initialized = false;
     retroFunctions = { 0 };
 }
 
 void Libretro::unloadGame() {
     retroFunctions.retro_unload_game();
+    gameEvents->onGameClose();
 }
 
 retro_system_av_info Libretro::loadGame(const char* fileName) {
@@ -139,6 +142,7 @@ retro_system_av_info Libretro::loadGame(const char* fileName) {
 
 
     gameIsLoaded = true;
+    gameEvents->onGameStart();
 	return SysAvInfo;
 }
 

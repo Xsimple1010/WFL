@@ -5,8 +5,7 @@
 
 using std::string;
 
-static controller_events events = {0};
-
+static wfl_events events = {0};
 
 //inputs
 static void setController(){
@@ -59,16 +58,25 @@ void onConnect(SDL_GameController* gmController){
     setController();
 }
 
+void onGameClose() {
+	std::cout << "onGameClose ->" << std::endl;
+}
+
+void onGameStart() {
+	std::cout << "onGameStart ->" << std::endl;
+}
+
 int main(int argc, char* argv[]) {
+    events.onConnect 	= &onConnect;
+    events.onDisconnect = &onDisconnect;
+	events.onGameClose 	= &onGameClose;
+	events.onGameStart 	= &onGameStart;
 
-    events.onConnect = onConnect;
-    events.onDisconnect =  onDisconnect;
-
-	string rootPath = "C:/WFL/";
-	string savePath = rootPath + "save";
-	string systemPath = rootPath + "system";
-	string corePath = rootPath + "cores/bsnes_libretro.dll";
-	string romPath = rootPath + "roms/Mega Man X (USA).sfc";
+	string rootPath 	= "C:/WFL/";
+	string savePath 	= rootPath + "save";
+	string systemPath 	= rootPath + "system";
+	string corePath 	= rootPath + "cores/bsnes_libretro.dll";
+	string romPath 		= rootPath + "roms/Mega Man X (USA).sfc";
 
 	wfl_paths paths;
 	paths.save = savePath.c_str();

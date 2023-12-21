@@ -73,6 +73,7 @@ struct joystick_keymap {
 
 typedef void on_device_disconnect_t(SDL_JoystickID id, int port);
 typedef void on_device_connect_t(SDL_GameController* gmController);
+
 struct controller_events {
 	on_device_disconnect_t* onDisconnect;
 	on_device_connect_t* onConnect;
