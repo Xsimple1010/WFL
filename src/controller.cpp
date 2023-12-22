@@ -10,7 +10,7 @@ ControllerClass::ControllerClass(controller_events* events, controller_internal_
 }
 
 void ControllerClass::deinit() {
-	mtxDevice.lock();
+	// mtxDevice.lock();
 	for (controller_device device :devices)
 	{
 		SDL_GameControllerClose(device.nativeInfo.controllerToken);
@@ -18,7 +18,7 @@ void ControllerClass::deinit() {
 
 	devices.clear();
 
-	mtxDevice.unlock();
+	// mtxDevice.unlock();
 }
 
 vector<wfl_joystick> ControllerClass::getConnectedJoysticks() {
@@ -45,14 +45,14 @@ vector<wfl_joystick> ControllerClass::getConnectedJoysticks() {
 
 
 void ControllerClass::append(controller_device newDevice) {
-	mtxDevice.lock();
+	// mtxDevice.lock();
 	if(newDevice.port > deviceMaxSize) {
-		mtxDevice.unlock();
+		// mtxDevice.unlock();
 		return;
 	};
 
 	if(devices.empty()) {
-		mtxDevice.unlock();
+		// mtxDevice.unlock();
 		devices.push_back(newDevice);
 		internalCallbacks->onAppend(newDevice);
 		return;
@@ -73,12 +73,12 @@ void ControllerClass::append(controller_device newDevice) {
 		internalCallbacks->onAppend(newDevice);
 	}
 
-	mtxDevice.unlock();
+	// mtxDevice.unlock();
 }
 
 void ControllerClass::inputPoll()
 {	
-	mtxDevice.lock();
+	// mtxDevice.lock();
 	for (controller_device device : devices) 
 	{	
 		if(device.nativeInfo.type == WFL_DEVICE_JOYSTICK){
@@ -96,11 +96,11 @@ void ControllerClass::inputPoll()
 			}
 		}
 	}
-	mtxDevice.unlock();
+	// mtxDevice.unlock();
 }
 
 int16_t ControllerClass::inputState(unsigned port, unsigned deviceType, unsigned index, unsigned id) {
-	mtxDevice.lock();
+	// mtxDevice.lock();
 	
 	if(port > devices.max_size()){
 		return 0;
@@ -109,12 +109,12 @@ int16_t ControllerClass::inputState(unsigned port, unsigned deviceType, unsigned
 	for (const controller_device device : devices)
 	{
 		if(device.type == deviceType) {
-			mtxDevice.unlock();
+			// mtxDevice.unlock();
 			return GJoy[id];
 		}
 	}
 	
-	mtxDevice.unlock();
+	// mtxDevice.unlock();
 
 	return 0;
 }
@@ -131,7 +131,7 @@ void ControllerClass::onConnect(SDL_JoystickID id) {
 
 
 void ControllerClass::onDisconnect(SDL_JoystickID id) {
-	mtxDevice.lock();
+	// mtxDevice.lock();
 
 	controller_device rmDevice;
 	
@@ -149,5 +149,5 @@ void ControllerClass::onDisconnect(SDL_JoystickID id) {
 		devices.erase(std::find(devices.begin(), devices.end(), rmDevice));
 	}
 
-	mtxDevice.unlock();
+	// mtxDevice.unlock();
 }
