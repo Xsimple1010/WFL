@@ -22,28 +22,10 @@ void gameLoop(game_loop_params params) {
 	audio->init(avInfo.timing.sample_rate);
 
 	while (*playing) {
-		if(*pause) return;
-
-		if (externalCoreData->runLoopFrameTime.callback) {
-			retro_time_t current = cpuFeaturesGetTimeUsec();
-			retro_time_t delta = current - externalCoreData->runLoopFrameTimeLast;
-
-			if (!externalCoreData->runLoopFrameTimeLast) {
-				delta = externalCoreData->runLoopFrameTime.reference;
-			}
-
-			externalCoreData->runLoopFrameTimeLast = current;
-			externalCoreData->runLoopFrameTime.callback(delta);
-		}
-
-		if (externalCoreData->audioCallback.callback) {
-			externalCoreData->audioCallback.callback();
-		}
-
-
+		
 		while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT: {
+			switch (event.type) {
+				case SDL_QUIT: {
 					std::cout << "quit" << std::endl;
 					*playing = false;
 					*pause = true;
@@ -67,9 +49,28 @@ void gameLoop(game_loop_params params) {
 					}
 
 				}
-            }
-		}        
+			}
+		} 
 
-		libretro->run();
+		if(!*pause) {
+			if (externalCoreData->runLoopFrameTime.callback) {
+				retro_time_t current = cpuFeaturesGetTimeUsec();
+				retro_time_t delta = current - externalCoreData->runLoopFrameTimeLast;
+
+				if (!externalCoreData->runLoopFrameTimeLast) {
+					delta = externalCoreData->runLoopFrameTime.reference;
+				}
+
+				externalCoreData->runLoopFrameTimeLast = current;
+				externalCoreData->runLoopFrameTime.callback(delta);
+			}
+
+			if (externalCoreData->audioCallback.callback) {
+				externalCoreData->audioCallback.callback();
+			}
+
+			libretro->run();
+		};
+
 	}
 }
