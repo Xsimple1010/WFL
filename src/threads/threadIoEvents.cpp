@@ -2,7 +2,15 @@
 
 static SDL_Event event;
 
+static void initSDL() {
+    if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
+		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
+    }
+}
+
 static void eventLoop(bool* running, bool* playing, ControllerClass* controller) {
+
+    initSDL();
 
     while (*running) {
         
@@ -10,6 +18,8 @@ static void eventLoop(bool* running, bool* playing, ControllerClass* controller)
         {
             switch (event.type) {
                 case SDL_QUIT: {
+                    if(*running) initSDL();
+                    
                     *playing = false;
                     break;
                 }
@@ -29,10 +39,6 @@ static void eventLoop(bool* running, bool* playing, ControllerClass* controller)
 }
 
 void initThreadIoEvents(bool* running, bool* playing, ControllerClass* controller) {
-    if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
-		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
-
     std::thread eventLoopThread(eventLoop, running, playing, controller);
 
     eventLoopThread.detach();

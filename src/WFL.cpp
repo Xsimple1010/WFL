@@ -132,6 +132,8 @@ void wflStop() {
 
 	externalCoreData = { 0 };
     coreEvents = { 0 };
+
+	SDL_Quit();
 }
 
 void wflDeinit() {
@@ -139,9 +141,8 @@ void wflDeinit() {
 
 	controller.deinit();
 
-    SDL_Quit();
-	
 	running = false;
+    SDL_Quit();
 }
 
 void wflResume() {

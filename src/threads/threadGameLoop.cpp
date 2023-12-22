@@ -9,25 +9,21 @@ static void gameThreadStop(game_loop_params params,  thread_game_extra_data_dein
 	params.audio->deinit();
 	params.libretro->deinit();
 
-	std::cout << "gameThreadStop" << std::endl;
+	SDL_Quit();
 }
 
 static void gameThreadDeinit(game_loop_params params,  thread_game_extra_data_deinit dataDeinit) {
 	gameThreadStop(params, dataDeinit);
 
 	dataDeinit.controller->deinit();
+	*dataDeinit.running = false;
 
     SDL_Quit();
-	
-	std::cout << "full deinit" << std::endl;
-
-	*dataDeinit.running = false;
 }
 
 static void gameThread(game_loop_params params,  thread_game_extra_data_deinit dataDeinit) {
 	gameLoop(params);
 
-	
 	if(*dataDeinit.fullDeinit) {
 		gameThreadDeinit(params, dataDeinit);
 	} else {
