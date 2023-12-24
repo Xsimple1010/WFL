@@ -4,8 +4,10 @@
 #include "SDL2/SDL_gamecontroller.h"
 #include "libretro.h"
 
-#define WFL_DEVICE_KEYBOARD       1
-#define WFL_DEVICE_JOYSTICK       2
+enum WFL_DEVICE_TYPES {
+    WFL_DEVICE_KEYBOARD,
+    WFL_DEVICE_JOYSTICK,
+};
 
 enum wfl_joystick_native_buttons {
 	WFL_JOYSTICK_NATIVE_BT_INVALID          = SDL_CONTROLLER_BUTTON_INVALID,
@@ -71,8 +73,14 @@ struct joystick_keymap {
 	wfl_joystick_retro_buttons retro;
 };
 
-typedef void on_device_disconnect_t(SDL_JoystickID id, int port);
-typedef void on_device_connect_t(SDL_GameController* gmController);
+struct wfl_joystick {
+	SDL_JoystickID id;
+	int index;
+	const char* name;
+};
+
+typedef void on_device_disconnect_t(wfl_joystick joystick, int port);
+typedef void on_device_connect_t(wfl_joystick joystick);
 
 struct controller_events {
 	on_device_disconnect_t* onDisconnect;
@@ -84,16 +92,12 @@ struct controller_native_info {
 	SDL_GameController* controllerToken;
 };
 
-struct wfl_joystick {
-	SDL_JoystickID id;
-	int index;
-	const char* name;
-};
 
 struct controller_device {
 	SDL_JoystickID id;
 	int index;
 	int port;
+    const char* name;
 	unsigned int type;	
 	controller_native_info nativeInfo;
 	struct Keyboard_keymap keyboardKeyBinds[16];

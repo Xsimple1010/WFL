@@ -53,6 +53,10 @@ void ControllerClass::append(controller_device newDevice) {
 
 	if(devices.empty()) {
 		// mtxDevice.unlock();
+		SDL_GameController* gmController = SDL_GameControllerOpen(newDevice.index);
+
+		newDevice.nativeInfo.controllerToken = gmController;
+
 		devices.push_back(newDevice);
 		internalCallbacks->onAppend(newDevice);
 		return;
@@ -125,8 +129,15 @@ void ControllerClass::identify() {
 
 
 void ControllerClass::onConnect(SDL_JoystickID id) {
-	SDL_GameController* gmController = SDL_GameControllerFromInstanceID(id);
-	callbacks->onConnect(gmController);
+	auto joysticks = getConnectedJoysticks();
+
+	for (wfl_joystick joy : joysticks) 
+	{
+		if(joy.id == id) {
+			callbacks->onConnect(joy);
+		}
+	}
+	
 }
 
 
@@ -144,8 +155,14 @@ void ControllerClass::onDisconnect(SDL_JoystickID id) {
 	}
 
 	if(!devices.empty()) {
+
+		wfl_joystick joy = { 0 };
+
+		joy.id = rmDevice.id;
+		joy.index = rmDevice.index;
+		joy.name = rmDevice.name;
 	
-		callbacks->onDisconnect(rmDevice.id, rmDevice.port);
+		callbacks->onDisconnect(joy, rmDevice.port);
 		devices.erase(std::find(devices.begin(), devices.end(), rmDevice));
 	}
 

@@ -8,8 +8,7 @@ using std::string;
 static wfl_events events = {0};
 
 //inputs
-static void setController(){
-	vector<wfl_joystick> joysticks = wflGetConnectedJoysticks();
+static void setController(wfl_joystick joystick){
 
 	controller_device deviceGamePad = {
 		.index = 0,
@@ -35,27 +34,20 @@ static void setController(){
 		}
 	};
 
-	for (wfl_joystick joy : joysticks)
-	{
+	deviceGamePad.index = joystick.index;
+	deviceGamePad.name = joystick.name;
+	deviceGamePad.id = joystick.id;
 
-		SDL_GameController* gmController = SDL_GameControllerOpen(joy.index);
-
-		deviceGamePad.nativeInfo.controllerToken = gmController;
-        deviceGamePad.index = joy.index;
-        deviceGamePad.id = joy.id;
-
-        wflSetController(deviceGamePad);
-	}
-
+	wflSetController(deviceGamePad);
 }
 
-void onDisconnect(SDL_JoystickID id, int port){
-	std::cout <<"onDisconnect -> " << id << std::endl;
+void onDisconnect(wfl_joystick joystick, int port){
+	std::cout <<"onDisconnect -> " << joystick.name << std::endl;
 }
 
-void onConnect(SDL_GameController* gmController){
-    std::cout << "onConnect ->" << gmController << std::endl;
-    setController();
+void onConnect(wfl_joystick joystick){
+    std::cout << "onConnect -> " << joystick.name << std::endl;
+    setController(joystick);
 }
 
 void onGameClose() {
