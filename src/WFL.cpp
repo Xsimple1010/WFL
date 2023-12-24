@@ -142,27 +142,22 @@ void wflDeinit() {
 	wflStop();
 
 	controller.deinit();
-
-	// running = false;
 	statusClass.setRunning(false);
 
     SDL_Quit();
 }
 
 void wflResume() {
-	// pause = false;
+	statusClass.setPaused(false);
 }
 
 void wflPause() {
-	// pause = true;
+	statusClass.setPaused(true);
 }
 
 void wflLoadGame(const char* path) {
 	if(libretro.gameIsLoaded) return;
 	
-	// playing = true;
-	// pause = false;
-
 	statusClass.setPlaying(true);
 	statusClass.setPaused(false);
 
@@ -172,9 +167,7 @@ void wflLoadGame(const char* path) {
 	gameParams.video 			= &video;
 	gameParams.videoInfo 		= &videoInfo;
 	gameParams.audio			= &audio;
-	// gameParams.playing 			= &playing;
 	gameParams.status 			= &statusClass;
-	// gameParams.pause 			= &pause;
 	gameParams.libretro 		= &libretro;
 	gameParams.externalCoreData = &externalCoreData;
 
