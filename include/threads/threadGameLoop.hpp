@@ -4,7 +4,6 @@
 #include "gameLoop.hpp"
 struct thread_game_extra_data_deinit {
     bool* fullDeinit;
-    bool* running;
     ControllerClass *controller;
 };
 

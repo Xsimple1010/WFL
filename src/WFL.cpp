@@ -7,10 +7,8 @@
 #include "threads/threadGameLoop.hpp"
 #include "WFL.h"
 #include "gameLoop.hpp"
+#include "stateNotifier.hpp"
 
-static bool running = false;
-static bool playing = false;
-static bool pause = true;
 static bool enableFullDeinit = true;
 static SDL_Event event;
 static bool singleThread = false;
@@ -26,6 +24,7 @@ static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents,
 static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
 static VideoClass video;
 static AudioClass audio;
+static StateNotifierClass statusClass;
 
 //audio events
 static void audioSample(int16_t left, int16_t right) {
@@ -109,11 +108,12 @@ void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths 
 
 	controllerInternalEvents.onAppend = onDeviceAppend;
 
-	running = true;
+	statusClass.init(events.onStatusChange);
+	statusClass.setRunning(true);
 	singleThread = isSingleThread;
 	enableFullDeinit = fullDeinit;
 
-	initThreadIoEvents(&running, &playing, &controller);
+	initThreadIoEvents(&statusClass, &controller);
 }
 
 void wflLoadCore(const char* path) {
@@ -123,8 +123,10 @@ void wflLoadCore(const char* path) {
 }
 
 void wflStop() {
-	playing = false;
-	pause = true;
+	// playing = false;
+	// pause = true;
+	statusClass.setPlaying(false);
+	statusClass.setPaused(true);
 
 	video.deinit();
 	audio.deinit();
@@ -141,23 +143,28 @@ void wflDeinit() {
 
 	controller.deinit();
 
-	running = false;
+	// running = false;
+	statusClass.setRunning(false);
+
     SDL_Quit();
 }
 
 void wflResume() {
-	pause = false;
+	// pause = false;
 }
 
 void wflPause() {
-	pause = true;
+	// pause = true;
 }
 
 void wflLoadGame(const char* path) {
 	if(libretro.gameIsLoaded) return;
 	
-	playing = true;
-	pause = false;
+	// playing = true;
+	// pause = false;
+
+	statusClass.setPlaying(true);
+	statusClass.setPaused(false);
 
 	game_loop_params gameParams;
 
@@ -165,8 +172,9 @@ void wflLoadGame(const char* path) {
 	gameParams.video 			= &video;
 	gameParams.videoInfo 		= &videoInfo;
 	gameParams.audio			= &audio;
-	gameParams.playing 			= &playing;
-	gameParams.pause 			= &pause;
+	// gameParams.playing 			= &playing;
+	gameParams.status 			= &statusClass;
+	// gameParams.pause 			= &pause;
 	gameParams.libretro 		= &libretro;
 	gameParams.externalCoreData = &externalCoreData;
 
@@ -184,7 +192,6 @@ void wflLoadGame(const char* path) {
 
 		extraDataDeinit.controller 	= &controller;
 		extraDataDeinit.fullDeinit 	= &enableFullDeinit;
-		extraDataDeinit.running 	= &running;
 
 		initThreadGame(gameParams, extraDataDeinit);
 	}

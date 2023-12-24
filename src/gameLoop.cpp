@@ -8,8 +8,7 @@ void gameLoop(game_loop_params params) {
 	auto libretro = params.libretro;
 	auto path = params.gamePath;
 	auto audio = params.audio;
-	auto playing = params.playing;
-	auto pause = params.pause;
+	auto status = params.status;
 	auto externalCoreData = params.externalCoreData;
 
 	video->setInfo(videoInfo);
@@ -21,7 +20,7 @@ void gameLoop(game_loop_params params) {
     }
 	audio->init(avInfo.timing.sample_rate);
 
-	while (*playing) {
+	while (status->getStates().playing) {
 		
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -31,8 +30,11 @@ void gameLoop(game_loop_params params) {
 
 						case SDL_WINDOWEVENT_CLOSE: 
 						{
-							*playing = false;
-							*pause = true;
+							// *playing = false;
+							// *pause = true;
+
+							status->setPlaying(false);
+							status->setPaused(true);
 							break;
 						}
 					}
@@ -40,7 +42,7 @@ void gameLoop(game_loop_params params) {
 			}
 		} 
 
-		if(!*pause) {
+		if(!status->getStates().pause) {
 			if (externalCoreData->runLoopFrameTime.callback) {
 				retro_time_t current = cpuFeaturesGetTimeUsec();
 				retro_time_t delta = current - externalCoreData->runLoopFrameTimeLast;

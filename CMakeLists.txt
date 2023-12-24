@@ -20,6 +20,7 @@ set(WFL_SOURCE
   src/gameLoop.cpp
   src/audio.cpp
   src/video.cpp
+  src/stateNotifier.cpp
   src/controller.cpp
   src/threads/threadIoEvents.cpp
   src/threads/threadGameLoop.cpp

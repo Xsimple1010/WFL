@@ -8,19 +8,19 @@ static void initSDL() {
     }
 }
 
-static void eventLoop(bool* running, bool* playing, ControllerClass* controller) {
+static void eventLoop(StateNotifierClass* state, ControllerClass* controller) {
 
     initSDL();
 
-    while (*running) {
+    while (state->getStates().running) {
         
         while (SDL_PollEvent(&event))
         {
             switch (event.type) {
                 case SDL_QUIT: {
-                    if(*running) initSDL();
+                    if(state->getStates().running) initSDL();
                     
-                    *playing = false;
+                    state->setPlaying(false);
                     break;
                 }
 
@@ -38,8 +38,8 @@ static void eventLoop(bool* running, bool* playing, ControllerClass* controller)
     }
 }
 
-void initThreadIoEvents(bool* running, bool* playing, ControllerClass* controller) {
-    std::thread eventLoopThread(eventLoop, running, playing, controller);
+void initThreadIoEvents(StateNotifierClass* state, ControllerClass* controller) {
+    std::thread eventLoopThread(eventLoop, state, controller);
 
     eventLoopThread.detach();
 }

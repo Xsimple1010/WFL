@@ -2,8 +2,8 @@
 #include <thread>
 
 static void gameThreadStop(game_loop_params params,  thread_game_extra_data_deinit dataDeinit) {
-	*params.playing = false;
-	*params.pause = true;
+	params.status->setPlaying(false);
+	params.status->setPaused(true);
 
 	params.video->deinit();
 	params.audio->deinit();
@@ -16,7 +16,7 @@ static void gameThreadDeinit(game_loop_params params,  thread_game_extra_data_de
 	gameThreadStop(params, dataDeinit);
 
 	dataDeinit.controller->deinit();
-	*dataDeinit.running = false;
+	params.status->setRunning(false);
 
     SDL_Quit();
 }

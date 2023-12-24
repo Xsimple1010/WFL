@@ -58,11 +58,14 @@ void onGameStart() {
 	std::cout << "onGameStart ->" << std::endl;
 }
 
+void onStatusChange(wfl_status status) {}
+
 int main(int argc, char* argv[]) {
-    events.onConnect 	= &onConnect;
-    events.onDisconnect = &onDisconnect;
-	events.onGameClose 	= &onGameClose;
-	events.onGameStart 	= &onGameStart;
+    events.onConnect 		= &onConnect;
+    events.onDisconnect 	= &onDisconnect;
+	events.onGameClose 		= &onGameClose;
+	events.onGameStart 		= &onGameStart;
+	events.onStatusChange 	= &onStatusChange;
 
 	string rootPath 	= "C:/WFL/";
 	string savePath 	= rootPath + "save";

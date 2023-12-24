@@ -7,10 +7,10 @@
 #include "Audio.hpp"
 #include "debug.hpp"
 #include "CpuFeatures.hpp"
+#include "stateNotifier.hpp"
 
 struct game_loop_params {
-    bool* playing;
-    bool* pause; 
+    StateNotifierClass* status; 
     Libretro* libretro;
     libretro_external_data* externalCoreData;
     VideoClass* video;

@@ -5,9 +5,10 @@
 #include "Controller.hpp"
 #include "debug.hpp"
 #include <thread>
+#include "stateNotifier.hpp"
 
-void initThreadIoEvents(bool* running, bool* playing, ControllerClass* controller);
+void initThreadIoEvents(StateNotifierClass* state, ControllerClass* controller);
 
-static void eventLoop(bool* running, bool* playing, ControllerClass* controller);
+static void eventLoop(StateNotifierClass* state, ControllerClass* controller);
 
 #endif
