@@ -10,7 +10,6 @@
 #include "stateNotifier.hpp"
 
 static bool enableFullDeinit = true;
-static SDL_Event event;
 static bool singleThread = false;
 
 static controller_internal_events controllerInternalEvents;
@@ -18,13 +17,12 @@ static controller_events controllerEvents;
 static game_events gameEvents;
 static libretro_external_data externalCoreData;
 static core_event_functions coreEvents; 
-static video_info videoInfo;
 
-static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, &videoInfo);
-static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
 static VideoClass video;
 static AudioClass audio;
 static StateNotifierClass statusClass;
+static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
+static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, video.videoInfo);
 
 //audio events
 static void audioSample(int16_t left, int16_t right) {
@@ -71,7 +69,6 @@ static void videoRefresh(const void* data, unsigned width, unsigned height, size
 
 
 //initialization variables
-static void noop() {}
 
 static void initializeVariables() {
 	coreEvents.setPixelFormat = setPixelFormat;
@@ -85,14 +82,7 @@ static void initializeVariables() {
 
 	externalCoreData.runLoopFrameTimeLast = 0;
 
-	videoInfo.window = NULL;
-	videoInfo.gVideo = {0};
-	videoInfo.gScale = 2;
-	videoInfo.gVideo.hw.version_major = 4;
-	videoInfo.gVideo.hw.version_minor = 5;
-	videoInfo.gVideo.hw.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
-	videoInfo.gVideo.hw.context_reset = noop;
-	videoInfo.gVideo.hw.context_destroy = noop;
+	video.setToDefaultValues();
 }
 //===========================================
 
@@ -123,8 +113,6 @@ void wflLoadCore(const char* path) {
 }
 
 void wflStop() {
-	// playing = false;
-	// pause = true;
 	statusClass.setPlaying(false);
 	statusClass.setPaused(true);
 
@@ -165,7 +153,6 @@ void wflLoadGame(const char* path) {
 
 	gameParams.gamePath 		= path;
 	gameParams.video 			= &video;
-	gameParams.videoInfo 		= &videoInfo;
 	gameParams.audio			= &audio;
 	gameParams.status 			= &statusClass;
 	gameParams.libretro 		= &libretro;

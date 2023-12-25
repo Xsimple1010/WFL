@@ -15,7 +15,6 @@ struct game_loop_params {
     libretro_external_data* externalCoreData;
     VideoClass* video;
     const char* gamePath;
-    video_info* videoInfo;
     AudioClass* audio;
 };
 

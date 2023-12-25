@@ -4,14 +4,12 @@ static SDL_Event event;
 
 void gameLoop(game_loop_params params) {
 	auto video = params.video;
-	auto videoInfo = params.videoInfo;
 	auto libretro = params.libretro;
 	auto path = params.gamePath;
 	auto audio = params.audio;
 	auto status = params.status;
 	auto externalCoreData = params.externalCoreData;
 
-	video->setInfo(videoInfo);
 	retro_system_av_info avInfo = libretro->loadGame(path);
 
 	video->init(&avInfo.geometry);
