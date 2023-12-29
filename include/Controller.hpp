@@ -36,6 +36,7 @@ class ControllerClass {
 		void onDisconnect(SDL_JoystickID id );
 		void identify();
 		void checkerChanges();
+		int getKeyDown();
 };
 
 #endif // CONTROLLER_H

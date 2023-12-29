@@ -140,7 +140,6 @@ void ControllerClass::onConnect(SDL_JoystickID id) {
 	
 }
 
-
 void ControllerClass::onDisconnect(SDL_JoystickID id) {
 	// mtxDevice.lock();
 
@@ -167,4 +166,31 @@ void ControllerClass::onDisconnect(SDL_JoystickID id) {
 	}
 
 	// mtxDevice.unlock();
+}
+
+int ControllerClass::getKeyDown() {
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
+		std::cout << SDL_GetError() << std::endl;
+    }
+
+	SDL_Event event;
+
+	int bt = SDL_CONTROLLER_BUTTON_INVALID;
+	bool running = true;
+
+	while (running) {
+        
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type) {
+                case SDL_CONTROLLERBUTTONDOWN: {
+					running = false;
+					bt = event.cbutton.button;
+					break;
+                }
+            }
+        }
+    }
+	
+	return bt;
 }

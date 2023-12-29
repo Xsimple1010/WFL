@@ -2,8 +2,11 @@
 #include <iostream>
 #include "WFL.h"
 #include <string>
+#include <future>
 
 using std::string;
+using std::future;
+using std::async;
 
 static wfl_events events = {0};
 
@@ -78,7 +81,9 @@ int main(int argc, char* argv[]) {
 	paths.system = systemPath.c_str();
 
     wflInit(true, true, events, paths);
-   
+
+	auto keyFuture = async(std::launch::async, WFlGetKeyDown);
+	
 	wflLoadCore(corePath.c_str());
     wflLoadGame(romPath.c_str());
 

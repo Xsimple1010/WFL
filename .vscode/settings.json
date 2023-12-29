@@ -73,7 +73,8 @@
         "unordered_set": "cpp",
         "variant": "cpp",
         "xhash": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "future": "cpp"
     },
     "cSpell.words": [
         "cdevice",

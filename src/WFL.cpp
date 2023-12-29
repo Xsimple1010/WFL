@@ -86,6 +86,9 @@ static void initializeVariables() {
 }
 //===========================================
 
+int WFlGetKeyDown() {
+	return controller.getKeyDown(); 
+}
 
 //WFLAPI
 void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths) {
