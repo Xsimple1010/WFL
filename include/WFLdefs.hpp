@@ -1,7 +1,7 @@
 #ifndef WFL_DEFS_H
 #define WFL_DEFS_H
 
-#include "controllerDefs.hpp"
+#include "gamePadDefs.hpp"
 #include "stateNotifier.hpp"
 
 typedef void on_game_start();

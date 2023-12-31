@@ -1,7 +1,7 @@
 #ifndef GAME_LOOP
 #define GAME_LOOP
 
-#include "Controller.hpp"
+#include "gamePad.hpp"
 #include "LibretroClass.hpp"
 #include "Video.hpp"
 #include "Audio.hpp"

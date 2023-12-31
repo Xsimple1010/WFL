@@ -63,29 +63,25 @@ enum wfl_joystick_retro_buttons {
 };
 
 //keyboard end other inputs
-struct Keyboard_keymap {
+struct keyboard_keymap {
 	unsigned native;
 	unsigned retro;
 };
 
-struct joystick_keymap {
+struct game_pad_keymap {
 	wfl_joystick_native_buttons native;
 	wfl_joystick_retro_buttons retro;
 };
 
-struct wfl_joystick {
+struct wfl_device {
 	SDL_JoystickID id;
 	int index;
 	const char* name;
+    bool connected;
 };
 
-typedef void on_device_disconnect_t(wfl_joystick joystick, int port);
-typedef void on_device_connect_t(wfl_joystick joystick);
-
-struct controller_events {
-	on_device_disconnect_t* onDisconnect;
-	on_device_connect_t* onConnect;
-};
+typedef void on_device_disconnect_t(wfl_device joystick, int port);
+typedef void on_device_connect_t(wfl_device joystick);
 
 struct controller_native_info {
 	unsigned int type;
@@ -93,16 +89,16 @@ struct controller_native_info {
 };
 
 
-struct controller_device {
+struct wfl_game_pad {
 	SDL_JoystickID id;
 	int index;
 	int port;
     const char* name;
 	unsigned int type;	
 	controller_native_info nativeInfo;
-	struct Keyboard_keymap keyboardKeyBinds[16];
-	struct joystick_keymap joystickKeyBinds[16];
-	bool operator==(const controller_device& other) const {
+	struct keyboard_keymap keyboardKeyBinds[16];
+	struct game_pad_keymap gamePadKeyBinds[16];
+	bool operator==(const wfl_game_pad& other) const {
 		return this->id == other.id;
 	}
 };

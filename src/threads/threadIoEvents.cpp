@@ -8,7 +8,7 @@ static void initSDL() {
     }
 }
 
-static void eventLoop(StateNotifierClass* state, ControllerClass* controller) {
+static void eventLoop(StateNotifierClass* state, GamePadClass* gamePadClass) {
 
     initSDL();
 
@@ -25,12 +25,12 @@ static void eventLoop(StateNotifierClass* state, ControllerClass* controller) {
                 }
 
                 case SDL_CONTROLLERDEVICEADDED: {
-                    controller->onConnect(event.cdevice.which);
+                    gamePadClass->onConnect(event.cdevice.which);
                     break;
                 }
 
                 case SDL_CONTROLLERDEVICEREMOVED: {
-                    controller->onDisconnect(event.cdevice.which);
+                    gamePadClass->onDisconnect(event.cdevice.which);
                     break;
                 }
             }
@@ -38,8 +38,8 @@ static void eventLoop(StateNotifierClass* state, ControllerClass* controller) {
     }
 }
 
-void initThreadIoEvents(StateNotifierClass* state, ControllerClass* controller) {
-    std::thread eventLoopThread(eventLoop, state, controller);
+void initThreadIoEvents(StateNotifierClass* state, GamePadClass* gamePadClass) {
+    std::thread eventLoopThread(eventLoop, state, gamePadClass);
 
     eventLoopThread.detach();
 }

@@ -1,5 +1,5 @@
 #include "SDL.h"
-#include "Controller.hpp"
+#include "gamePad.hpp"
 #include "LibretroClass.hpp"
 #include "Audio.hpp"
 #include "Video.hpp"
@@ -12,39 +12,29 @@
 static bool enableFullDeinit = true;
 static bool singleThread = false;
 
-static controller_internal_events controllerInternalEvents;
-static controller_events controllerEvents;
 static game_events gameEvents;
 static libretro_external_data externalCoreData;
 static core_event_functions coreEvents; 
 
-static VideoClass video;
-static AudioClass audio;
+static VideoClass videoClass;
+static AudioClass audioClass;
 static StateNotifierClass statusClass;
-static ControllerClass controller = ControllerClass(&controllerEvents, &controllerInternalEvents);
-static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, video.videoInfo);
+static GamePadClass gamePadClass = GamePadClass();
+static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, videoClass.videoInfo);
 
 //audio events
 static void audioSample(int16_t left, int16_t right) {
 	int16_t buffer[2] = { left, right };
 
-	audio.write(buffer, 1);
+	audioClass.write(buffer, 1);
 }
 
 static size_t audioSampleBatch(const int16_t* data, size_t frames) {
-	return audio.write(data, frames);
+	return audioClass.write(data, frames);
 }
 
-//controller events
-static void inputPoll() {
-	controller.inputPoll();
-}
-
-static int16_t inputState(unsigned port, unsigned device, unsigned index, unsigned id) {
-	return controller.inputState(port, device, index, id);
-}
-
-static void onDeviceAppend(controller_device device) {
+//gamePad events
+static void onDeviceAppend(wfl_game_pad device) {
 	if(libretro.coreIsLoaded) {
 		libretro.setControllerPortDevice(device.port, device.type);
 	}
@@ -52,19 +42,19 @@ static void onDeviceAppend(controller_device device) {
 
 //video events
 static bool setPixelFormat(unsigned format) {
-	return video.setPixelFormat(format);
+	return videoClass.setPixelFormat(format);
 }
 
 static void refreshVertexData() {
-	video.refreshVertexData();
+	videoClass.refreshVertexData();
 }
 
 static void resizeToAspect(double ratio, int sw, int sh, int* dw, int* dh) {
-	video.resizeToAspect(ratio, sw, sh, dw, dh);
+	videoClass.resizeToAspect(ratio, sw, sh, dw, dh);
 }
 
 static void videoRefresh(const void* data, unsigned width, unsigned height, size_t pitch) {
-	video.videoRefresh(data, width, height, pitch);
+	videoClass.videoRefresh(data, width, height, pitch);
 }
 
 
@@ -77,36 +67,37 @@ static void initializeVariables() {
 	coreEvents.videoRefresh = videoRefresh;
 	coreEvents.audioSample = audioSample;
 	coreEvents.audioSampleBatch = audioSampleBatch;
-	coreEvents.inputPoll = inputPoll;
-	coreEvents.inputState = inputState;
+	coreEvents.inputPoll = gamePadClass.inputPollCb;
+	coreEvents.inputState = gamePadClass.inputStateCb;
 
 	externalCoreData.runLoopFrameTimeLast = 0;
 
-	video.setToDefaultValues();
+	videoClass.setToDefaultValues();
 }
 //===========================================
 
 int WFlGetKeyDown() {
-	return controller.getKeyDown(); 
+	return gamePadClass.getKeyDown(); 
 }
 
 //WFLAPI
 void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths) {
-	controllerEvents.onConnect = events.onConnect;
-	controllerEvents.onDisconnect = events.onDisconnect;
-	gameEvents.onGameClose = events.onGameClose;
-	gameEvents.onGameStart = events.onGameStart;
+	gamePadClass.onConnectCb 		= events.onConnect;
+	gamePadClass.onDisconnectCb 	= events.onDisconnect;
+	gamePadClass.onDeviceAppendCb 	= onDeviceAppend;
 
-	externalCoreData.paths = paths;
+	gameEvents.onGameClose 			= events.onGameClose;
+	gameEvents.onGameStart 			= events.onGameStart;
 
-	controllerInternalEvents.onAppend = onDeviceAppend;
+	externalCoreData.paths 			= paths;
 
-	statusClass.init(events.onStatusChange);
-	statusClass.setRunning(true);
 	singleThread = isSingleThread;
 	enableFullDeinit = fullDeinit;
 
-	initThreadIoEvents(&statusClass, &controller);
+	statusClass.init(events.onStatusChange);
+	statusClass.setRunning(true);
+	
+	initThreadIoEvents(&statusClass, &gamePadClass);
 }
 
 void wflLoadCore(const char* path) {
@@ -119,8 +110,8 @@ void wflStop() {
 	statusClass.setPlaying(false);
 	statusClass.setPaused(true);
 
-	video.deinit();
-	audio.deinit();
+	videoClass.deinit();
+	audioClass.deinit();
 	libretro.deinit();
 
 	externalCoreData = { 0 };
@@ -132,7 +123,7 @@ void wflStop() {
 void wflDeinit() {
 	wflStop();
 
-	controller.deinit();
+	gamePadClass.deinit();
 	statusClass.setRunning(false);
 
     SDL_Quit();
@@ -155,8 +146,8 @@ void wflLoadGame(const char* path) {
 	game_loop_params gameParams;
 
 	gameParams.gamePath 		= path;
-	gameParams.video 			= &video;
-	gameParams.audio			= &audio;
+	gameParams.video 			= &videoClass;
+	gameParams.audio			= &audioClass;
 	gameParams.status 			= &statusClass;
 	gameParams.libretro 		= &libretro;
 	gameParams.externalCoreData = &externalCoreData;
@@ -173,17 +164,21 @@ void wflLoadGame(const char* path) {
 	} else {
 		thread_game_extra_data_deinit extraDataDeinit;
 
-		extraDataDeinit.controller 	= &controller;
-		extraDataDeinit.fullDeinit 	= &enableFullDeinit;
+		extraDataDeinit.gamePadClass 	= &gamePadClass;
+		extraDataDeinit.fullDeinit 		= &enableFullDeinit;
 
 		initThreadGame(gameParams, extraDataDeinit);
 	}
 }
 
-void wflSetController(controller_device device) {
-	controller.append(device);
+void wflSetGamePad(wfl_game_pad device) {
+	gamePadClass.append(device);
 }
 
-vector<wfl_joystick> wflGetConnectedJoysticks() {
-	return controller.getConnectedJoysticks();
+vector<wfl_game_pad> wflGetGamePad() {
+	return gamePadClass.getConnected();
+}
+
+vector<wfl_device> wflGetAllGamePads() {
+	return gamePadClass.getAll();
 }

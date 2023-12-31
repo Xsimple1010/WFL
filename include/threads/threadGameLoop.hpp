@@ -4,7 +4,7 @@
 #include "gameLoop.hpp"
 struct thread_game_extra_data_deinit {
     bool* fullDeinit;
-    ControllerClass *controller;
+    GamePadClass *gamePadClass;
 };
 
 void initThreadGame(game_loop_params params,  thread_game_extra_data_deinit dataDeinit);

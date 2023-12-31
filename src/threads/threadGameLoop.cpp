@@ -15,7 +15,7 @@ static void gameThreadStop(game_loop_params params,  thread_game_extra_data_dein
 static void gameThreadDeinit(game_loop_params params,  thread_game_extra_data_deinit dataDeinit) {
 	gameThreadStop(params, dataDeinit);
 
-	dataDeinit.controller->deinit();
+	dataDeinit.gamePadClass->deinit();
 	params.status->setRunning(false);
 
     SDL_Quit();

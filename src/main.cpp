@@ -11,9 +11,9 @@ using std::async;
 static wfl_events events = {0};
 
 //inputs
-static void setController(wfl_joystick joystick){
+static void setController(wfl_device device){
 
-	controller_device deviceGamePad = {
+	wfl_game_pad gamePad = {
 		.index = 0,
 		.port = 0,
 		.type = RETRO_DEVICE_JOYPAD,
@@ -21,7 +21,7 @@ static void setController(wfl_joystick joystick){
 			.type = WFL_DEVICE_JOYSTICK,
 		},
 		.keyboardKeyBinds = {0},
-		.joystickKeyBinds = {
+		.gamePadKeyBinds = {
 			{ WFL_JOYSTICK_NATIVE_BT_A, WFL_JOYSTICK_RETRO_BT_A },
 			{ WFL_JOYSTICK_NATIVE_BT_B, WFL_JOYSTICK_RETRO_BT_B },
 			{ WFL_JOYSTICK_NATIVE_BT_X, WFL_JOYSTICK_RETRO_BT_X },
@@ -37,20 +37,20 @@ static void setController(wfl_joystick joystick){
 		}
 	};
 
-	deviceGamePad.index = joystick.index;
-	deviceGamePad.name = joystick.name;
-	deviceGamePad.id = joystick.id;
+	gamePad.index = device.index;
+	gamePad.name = device.name;
+	gamePad.id = device.id;
 
-	wflSetController(deviceGamePad);
+	wflSetGamePad(gamePad);
 }
 
-void onDisconnect(wfl_joystick joystick, int port){
-	std::cout <<"onDisconnect -> " << joystick.name << std::endl;
+void onDisconnect(wfl_device device, int port){
+	std::cout <<"onDisconnect -> " << device.name << std::endl;
 }
 
-void onConnect(wfl_joystick joystick){
-    std::cout << "onConnect -> " << joystick.name << std::endl;
-    setController(joystick);
+void onConnect(wfl_device device){
+    std::cout << "onConnect -> " << device.name << std::endl;
+    setController(device);
 }
 
 void onGameClose() {
@@ -82,8 +82,8 @@ int main(int argc, char* argv[]) {
 
     wflInit(true, true, events, paths);
 
-	auto keyFuture = async(std::launch::async, WFlGetKeyDown);
-	
+	// auto keyFuture = async(std::launch::async, WFlGetKeyDown);
+
 	wflLoadCore(corePath.c_str());
     wflLoadGame(romPath.c_str());
 
