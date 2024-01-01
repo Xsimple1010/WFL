@@ -19,15 +19,25 @@ void GamePadClass::deinit() {
 int GamePadClass::getKeyDown() {
 	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
 		std::cout << SDL_GetError() << std::endl;
-    }
+	}
 
 	SDL_Event event;
 
 	int bt = SDL_CONTROLLER_BUTTON_INVALID;
 	bool running = true;
 
+	auto start = std::chrono::high_resolution_clock::now();
+
 	while (running) {
-        
+		auto resulte = std::chrono::high_resolution_clock::now() - start;
+		auto seconds = std::chrono::duration_cast<std::chrono::seconds>(resulte).count();
+
+
+		if(seconds >= 10) {
+			std::cout  << "time -> " << seconds << std::endl;
+			running = false;
+		}
+				
         while (SDL_PollEvent(&event))
         {
             switch (event.type) {
@@ -39,7 +49,9 @@ int GamePadClass::getKeyDown() {
             }
         }
     }
-	
+
+	std::cout << bt << std::endl;
+
 	return bt;
 }
 

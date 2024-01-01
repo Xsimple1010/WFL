@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <xmemory>
+#include <chrono>
 #include "gamePadDefs.hpp"
 
 using std::vector;
