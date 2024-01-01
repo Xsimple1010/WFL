@@ -57,6 +57,7 @@ vector<wfl_device> GamePadClass::getAll() {
 			device.id = SDL_JoystickGetDeviceInstanceID(i);
 			device.index = i;
 			device.name = SDL_JoystickNameForIndex(i);
+			device.connected = false;
 
 			for (auto gamePad : gamePads) {
 				if(gamePad.id == device.id) {
