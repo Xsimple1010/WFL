@@ -13,9 +13,6 @@ void gameLoop(game_loop_params params) {
 	retro_system_av_info avInfo = libretro->loadGame(path);
 
 	video->init(&avInfo.geometry);
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
 	audio->init(avInfo.timing.sample_rate);
 
 	while (status->getStates().playing) {

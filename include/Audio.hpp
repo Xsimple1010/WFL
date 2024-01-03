@@ -1,6 +1,7 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include <SDL.h>
 #include "libretro.h"
 #include "SDL2/SDL_audio.h"
 #include "debug.hpp"
