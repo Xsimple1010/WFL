@@ -1,6 +1,8 @@
 #ifndef STATE_NOTIFIER_H
 #define STATE_NOTIFIER_H
 
+#include <SDL.h>
+
 struct wfl_status {
     bool running;
     bool playing;
@@ -14,6 +16,7 @@ class StateNotifierClass {
     private:
         wfl_status status = { 0 };
     public:
+        SDL_Event event;
         void init(on_status_change_t* onChange);
         wfl_status getStates();
         void setRunning(bool isRunning);

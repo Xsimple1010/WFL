@@ -1,5 +1,4 @@
 #include "gameLoop.hpp"
-static SDL_Event event;
 
 
 void gameLoop(game_loop_params params) {
@@ -11,31 +10,16 @@ void gameLoop(game_loop_params params) {
 	auto externalCoreData = params.externalCoreData;
 
 	retro_system_av_info avInfo = libretro->loadGame(path);
+	SDL_Event event;
 
 	video->init(&avInfo.geometry);
 	audio->init(avInfo.timing.sample_rate);
 
 	while (status->getStates().playing) {
 		
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-				case SDL_WINDOWEVENT:
-				{
-					switch (event.window.event) {
-
-						case SDL_WINDOWEVENT_CLOSE: 
-						{
-							// *playing = false;
-							// *pause = true;
-
-							status->setPlaying(false);
-							status->setPaused(true);
-							break;
-						}
-					}
-				}
-			}
-		} 
+		//in systems like window it is necessary for 
+		//the program to listen for events so that the window remains open
+		while (SDL_PollEvent(&event)) { } 
 
 		if(!status->getStates().pause) {
 			if (externalCoreData->runLoopFrameTime.callback) {

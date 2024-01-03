@@ -1,12 +1,14 @@
 #ifndef GAME_PAD_H
 #define GAME_PAD_H
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <iostream>
 #include <vector>
 #include <xmemory>
 #include <chrono>
 #include "gamePadDefs.hpp"
+#include "debug.hpp"
+#include "stateNotifier.hpp"
 
 using std::vector;
 static size_t const deviceMaxSize = 6;
@@ -62,7 +64,11 @@ class GamePadClass {
 		on_device_disconnect_t* onDisconnectCb;
 		on_device_connect_t* onConnectCb;
 		on_device_append_t* onDeviceAppendCb;
-		GamePadClass();
+		SDL_Event SDLevents;
+		StateNotifierClass* state;
+
+		void init();
+		GamePadClass(StateNotifierClass* state);
 		
 		//events
 		void onDisconnect(SDL_JoystickID id );

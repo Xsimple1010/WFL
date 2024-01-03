@@ -1,36 +1,38 @@
 #include "threads/threadIoEvents.hpp"
 
-static SDL_Event event;
-
-static void initSDL() {
-    if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
-		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
-}
-
 static void eventLoop(StateNotifierClass* state, GamePadClass* gamePadClass) {
 
-    initSDL();
+    gamePadClass->init();
 
     while (state->getStates().running) {
-        
-        while (SDL_PollEvent(&event))
+        while (SDL_PollEvent(&state->event))
         {
-            switch (event.type) {
-                case SDL_QUIT: {
-                    if(state->getStates().running) initSDL();
-                    
-                    state->setPlaying(false);
-                    break;
-                }
+            switch (state->event.type) {
+                case SDL_WINDOWEVENT:
+				{
+					switch (state->event.window.event) {
+
+						case SDL_WINDOWEVENT_CLOSE: 
+						{
+							state->setPlaying(false);
+							state->setPaused(true);
+							break;
+						}
+					}
+				}
 
                 case SDL_CONTROLLERDEVICEADDED: {
-                    gamePadClass->onConnect(event.cdevice.which);
+                    gamePadClass->onConnect(state->event.cdevice.which);
                     break;
                 }
 
                 case SDL_CONTROLLERDEVICEREMOVED: {
-                    gamePadClass->onDisconnect(event.cdevice.which);
+                    gamePadClass->onDisconnect(state->event.cdevice.which);
+                    break;
+                }
+
+                case SDL_CONTROLLERBUTTONDOWN: {
+                    auto st = state->event.cbutton.button;
                     break;
                 }
             }

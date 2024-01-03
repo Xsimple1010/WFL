@@ -18,8 +18,8 @@ static core_event_functions coreEvents;
 
 static VideoClass videoClass;
 static AudioClass audioClass;
-static StateNotifierClass statusClass;
-static GamePadClass gamePadClass = GamePadClass();
+static StateNotifierClass stateClass;
+static GamePadClass gamePadClass = GamePadClass(&stateClass);
 static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, videoClass.videoInfo);
 
 //audio events
@@ -94,10 +94,10 @@ void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths 
 	singleThread = isSingleThread;
 	enableFullDeinit = fullDeinit;
 
-	statusClass.init(events.onStatusChange);
-	statusClass.setRunning(true);
+	stateClass.init(events.onStatusChange);
+	stateClass.setRunning(true);
 	
-	initThreadIoEvents(&statusClass, &gamePadClass);
+	initThreadIoEvents(&stateClass, &gamePadClass);
 }
 
 void wflLoadCore(const char* path) {
@@ -107,8 +107,8 @@ void wflLoadCore(const char* path) {
 }
 
 void wflStop() {
-	statusClass.setPlaying(false);
-	statusClass.setPaused(true);
+	stateClass.setPlaying(false);
+	stateClass.setPaused(true);
 
 	videoClass.deinit();
 	audioClass.deinit();
@@ -117,38 +117,38 @@ void wflStop() {
 	externalCoreData = { 0 };
     coreEvents = { 0 };
 
-	SDL_Quit();
+	// SDL_Quit();
 }
 
 void wflDeinit() {
 	wflStop();
 
 	gamePadClass.deinit();
-	statusClass.setRunning(false);
+	stateClass.setRunning(false);
 
     SDL_Quit();
 }
 
 void wflResume() {
-	statusClass.setPaused(false);
+	stateClass.setPaused(false);
 }
 
 void wflPause() {
-	statusClass.setPaused(true);
+	stateClass.setPaused(true);
 }
 
 void wflLoadGame(const char* path) {
 	if(libretro.gameIsLoaded) return;
 	
-	statusClass.setPlaying(true);
-	statusClass.setPaused(false);
+	stateClass.setPlaying(true);
+	stateClass.setPaused(false);
 
 	game_loop_params gameParams;
 
 	gameParams.gamePath 		= path;
 	gameParams.video 			= &videoClass;
 	gameParams.audio			= &audioClass;
-	gameParams.status 			= &statusClass;
+	gameParams.status 			= &stateClass;
 	gameParams.libretro 		= &libretro;
 	gameParams.externalCoreData = &externalCoreData;
 

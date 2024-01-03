@@ -70,11 +70,11 @@ int main(int argc, char* argv[]) {
 	events.onGameStart 		= &onGameStart;
 	events.onStatusChange 	= &onStatusChange;
 
-	string rootPath 	= "C:/WFL/";
-	string savePath 	= rootPath + "save";
-	string systemPath 	= rootPath + "system";
-	string corePath 	= rootPath + "cores/bsnes_libretro.dll";
-	string romPath 		= rootPath + "roms/Mega Man X (USA).sfc";
+	string rootPath 		= "C:/WFL/";
+	string savePath 		= rootPath + "save";
+	string systemPath 		= rootPath + "system";
+	string corePath 		= rootPath + "cores/bsnes_libretro.dll";
+	string romPath 			= rootPath + "roms/Mega Man X (USA).sfc";
 
 	wfl_paths paths;
 	paths.save = savePath.c_str();
@@ -82,10 +82,9 @@ int main(int argc, char* argv[]) {
 
     wflInit(true, true, events, paths);
 
-	// auto keyFuture = async(std::launch::async, WFlGetKeyDown);
-
 	wflLoadCore(corePath.c_str());
+	auto keyFuture = async(std::launch::async, WFlGetKeyDown);
     wflLoadGame(romPath.c_str());
-
-    return 0;
+    
+	return 0;
 }

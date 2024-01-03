@@ -1,10 +1,17 @@
 #include "gamePad.hpp"
 
-GamePadClass::GamePadClass() {
+GamePadClass::GamePadClass(StateNotifierClass* stateClass) {
 	SDL_GameControllerAddMappingsFromFile("./include/gamecontrollerdb.txt");
 
+	state = stateClass;
 	inputPollCb = &inputPoll;
 	inputStateCb = &inputState;
+}
+
+void GamePadClass::init() {
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
+		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
+    }
 }
 
 void GamePadClass::deinit() {
@@ -14,15 +21,11 @@ void GamePadClass::deinit() {
 	}
 
 	gamePads.clear();
+
+	SDL_QuitSubSystem(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER);
 }
 
 int GamePadClass::getKeyDown() {
-	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
-		std::cout << SDL_GetError() << std::endl;
-	}
-
-	SDL_Event event;
-
 	int bt = SDL_CONTROLLER_BUTTON_INVALID;
 	bool running = true;
 
@@ -38,19 +41,14 @@ int GamePadClass::getKeyDown() {
 			running = false;
 		}
 				
-        while (SDL_PollEvent(&event))
-        {
-            switch (event.type) {
-                case SDL_CONTROLLERBUTTONDOWN: {
-					running = false;
-					bt = event.cbutton.button;
-					break;
-                }
-            }
-        }
+        switch (state->event.type) {
+        	case SDL_CONTROLLERBUTTONDOWN: {
+				running = false;
+				bt = state->event.cbutton.button;
+				break;
+			}
+		}
     }
-
-	std::cout << bt << std::endl;
 
 	return bt;
 }
