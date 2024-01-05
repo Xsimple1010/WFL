@@ -64,10 +64,8 @@ class GamePadClass {
 		on_device_disconnect_t* onDisconnectCb;
 		on_device_connect_t* onConnectCb;
 		on_device_append_t* onDeviceAppendCb;
-		SDL_Event SDLevents;
 		StateNotifierClass* state;
 
-		void init();
 		GamePadClass(StateNotifierClass* state);
 		
 		//events

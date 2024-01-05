@@ -42,4 +42,8 @@ void gameLoop(game_loop_params params) {
 		};
 
 	}
+
+	video->deinit();
+	audio->deinit();
+	libretro->deinit();
 }

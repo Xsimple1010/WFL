@@ -8,12 +8,6 @@ GamePadClass::GamePadClass(StateNotifierClass* stateClass) {
 	inputStateCb = &inputState;
 }
 
-void GamePadClass::init() {
-	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
-		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
-}
-
 void GamePadClass::deinit() {
 	for (wfl_game_pad device :gamePads)
 	{
@@ -21,8 +15,6 @@ void GamePadClass::deinit() {
 	}
 
 	gamePads.clear();
-
-	SDL_QuitSubSystem(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER);
 }
 
 int GamePadClass::getKeyDown() {
@@ -49,6 +41,8 @@ int GamePadClass::getKeyDown() {
 			}
 		}
     }
+
+	std::cout << bt << std::endl;
 
 	return bt;
 }

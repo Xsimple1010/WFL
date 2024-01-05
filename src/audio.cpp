@@ -4,11 +4,6 @@
 static SDL_AudioDeviceID  audioDeviceID;
 
 bool AudioClass::init(int frequency) {
-	
-	if (SDL_Init(SDL_INIT_AUDIO) < 0) {
-		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
-
 	SDL_AudioSpec desired;
 	SDL_AudioSpec obtained;
 
@@ -34,7 +29,6 @@ bool AudioClass::init(int frequency) {
 
 void AudioClass::deinit() {
 	SDL_CloseAudioDevice(audioDeviceID);
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
 size_t AudioClass::write(const int16_t *buffer, size_t frames) {

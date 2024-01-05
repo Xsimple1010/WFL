@@ -1,9 +1,6 @@
 #include "threads/threadIoEvents.hpp"
 
 static void eventLoop(StateNotifierClass* state, GamePadClass* gamePadClass) {
-
-    gamePadClass->init();
-
     while (state->getStates().running) {
         while (SDL_PollEvent(&state->event))
         {

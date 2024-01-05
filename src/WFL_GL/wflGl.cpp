@@ -152,8 +152,6 @@ void WFLGlClass::deinit() {
 	SDL_GL_DeleteContext(GlCtx);
 	SDL_DestroyWindow(videoInfo.window);
 
-	SDL_QuitSubSystem(SDL_INIT_AUDIO);
-
 	gShader = {0};
 	videoInfo = {0};
 }
@@ -213,14 +211,6 @@ void WFLGlClass::createWindow(int width, int height) {
 	if (!GlCtx) {
 		die("Failed to create OpenGL context: %s", SDL_GetError());
 	}
-
-
-	if(SDL_WasInit(SDL_INIT_VIDEO) != 0) {
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    	}
-	} 
-	
 
 	if (videoInfo.gVideo.hw.context_type == RETRO_HW_CONTEXT_OPENGLES2) {
 		//if (!gladLoadGLES2Loader((GLADloadproc)SDL_GL_GetProcAddress))

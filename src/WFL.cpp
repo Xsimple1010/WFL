@@ -82,6 +82,10 @@ int WFlGetKeyDown() {
 
 //WFLAPI
 void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths) {
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
+    }
+
 	gamePadClass.onConnectCb 		= events.onConnect;
 	gamePadClass.onDisconnectCb 	= events.onDisconnect;
 	gamePadClass.onDeviceAppendCb 	= onDeviceAppend;
@@ -110,14 +114,8 @@ void wflStop() {
 	stateClass.setPlaying(false);
 	stateClass.setPaused(true);
 
-	videoClass.deinit();
-	audioClass.deinit();
-	libretro.deinit();
-
 	externalCoreData = { 0 };
     coreEvents = { 0 };
-
-	// SDL_Quit();
 }
 
 void wflDeinit() {
