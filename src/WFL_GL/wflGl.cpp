@@ -34,13 +34,12 @@ WFLGlClass::~WFLGlClass() {
 	videoInfo = {0};
 }
 
-
 void WFLGlClass::setToDefaultValues() {
 	videoInfo.window = NULL;
 	videoInfo.gVideo = {0};
 	videoInfo.gScale = 2;
 	videoInfo.gVideo.hw.version_major = 4;
-	videoInfo.gVideo.hw.version_minor = 5;
+	videoInfo.gVideo.hw.version_minor = 2;
 	videoInfo.gVideo.hw.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
 	videoInfo.gVideo.hw.context_reset = noop;
 	videoInfo.gVideo.hw.context_destroy = noop;
