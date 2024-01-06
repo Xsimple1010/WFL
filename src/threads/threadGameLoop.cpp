@@ -4,12 +4,6 @@
 static void gameThreadStop(game_loop_params params,  thread_game_extra_data_deinit dataDeinit) {
 	params.status->setPlaying(false);
 	params.status->setPaused(true);
-
-	params.video->deinit();
-	params.audio->deinit();
-	params.libretro->deinit();
-
-	SDL_Quit();
 }
 
 static void gameThreadDeinit(game_loop_params params,  thread_game_extra_data_deinit dataDeinit) {
