@@ -59,7 +59,6 @@ static void videoRefresh(const void* data, unsigned width, unsigned height, size
 
 
 //initialization variables
-
 static void initializeVariables() {
 	coreEvents.setPixelFormat = setPixelFormat;
 	coreEvents.refreshVertexData = refreshVertexData;
@@ -76,9 +75,6 @@ static void initializeVariables() {
 }
 //===========================================
 
-int WFlGetKeyDown() {
-	return gamePadClass.getKeyDown(); 
-}
 
 //WFLAPI
 void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths) {
@@ -179,4 +175,16 @@ vector<wfl_game_pad> wflGetGamePad() {
 
 vector<wfl_device> wflGetAllGamePads() {
 	return gamePadClass.getAll();
+}
+
+int WFlGetKeyDown() {
+	return gamePadClass.getKeyDown(); 
+}
+
+void wflSave() {
+	libretro.save();
+}
+
+void wflLoadSave() {
+	libretro.loadSave();
 }

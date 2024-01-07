@@ -1,12 +1,18 @@
 #ifndef LIBRETRO_CLASS_H
 #define LIBRETRO_CLASS_H
 
+#include <filesystem>
+#include <fstream>
+#include <string>
 #include "libretro.h"
 #include "SDL2/SDL.h"
 #include "videoDefs.hpp"
 #include "debug.hpp"
 #include "CpuFeatures.hpp"
 #include "WFLdefs.hpp"
+#include "wfl_file.hpp"
+
+using std::string;
 
 #define load_sym(V, S) do {\
     if (!((*(void**)&V) = SDL_LoadFunction(retroFunctions.handle, #S))) \
@@ -37,6 +43,10 @@ static struct {
 	void (*retro_get_system_info)(struct retro_system_info* info);
 	void (*retro_get_system_av_info)(struct retro_system_av_info* info);
 	void (*retro_set_controller_port_device)(unsigned port, unsigned device);
+
+	size_t (*retro_serialize_size)(void);
+	bool (*retro_serialize)(void *data, size_t size);
+	bool (*retro_unserialize)(const void *data, size_t size);
 } retroFunctions = { 0 };
 
 
@@ -71,14 +81,31 @@ class Libretro
 		bool coreIsLoaded;
 		bool gameIsLoaded;
 
-		Libretro(core_event_functions* eventFunctions, libretro_external_data* externalData, game_events* gameEvents, video_info* vInfo);
+		Libretro(
+			core_event_functions* eventFunctions,
+			libretro_external_data* externalData,
+			game_events* gameEvents
+		);
+		
+		void run();
 		void coreLoad(const char* coreFile);
+		void unloadGame();
+		void deinit();
+		void updateVideoInfo(video_info* vinfo);
+		
+		bool save();
+		bool loadSave();
+
 		retro_system_av_info loadGame(const char* gameFile);
 		retro_system_info getSystemInfo();
 		void setControllerPortDevice(unsigned port, unsigned device);
-		void run();
-		void unloadGame();
-		void deinit();
+
+	private:
+		std::filesystem::path romSelected = "";
+		std::filesystem::path coreSelected = "";
+
+		std::filesystem::path getCurrentSaveFile();		
+
 };
 
 

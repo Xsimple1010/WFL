@@ -74,7 +74,8 @@
         "variant": "cpp",
         "xhash": "cpp",
         "xtree": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "filesystem": "cpp"
     },
     "cSpell.words": [
         "cbutton",
@@ -83,6 +84,7 @@
         "CONTROLLERDEVICEADDED",
         "CONTROLLERDEVICEREMOVED",
         "DPAD",
+        "framebuffer",
         "FRAMEBUFFER",
         "GAMECONTROLLER",
         "JOYPAD",

@@ -30,6 +30,10 @@ void WFLAPI wflStop();
 void WFLAPI wflPause();
 void WFLAPI wflResume();
 
+//save
+void WFLAPI wflSave();
+void WFLAPI wflLoadSave();
+
 //gamePads
 int WFLAPI WFlGetKeyDown();
 void WFLAPI wflSetGamePad(struct wfl_game_pad device);

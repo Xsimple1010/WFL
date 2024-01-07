@@ -22,6 +22,7 @@ set(WFL_SOURCE
   src/video.cpp
   src/stateNotifier.cpp
   src/gamePad.cpp
+  src/wfl_file.cpp
   src/threads/threadIoEvents.cpp
   src/threads/threadGameLoop.cpp
   
