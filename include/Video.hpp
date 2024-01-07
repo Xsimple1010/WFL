@@ -9,8 +9,8 @@
 
 class VideoClass {
 	public:
-		video_info* videoInfo;
-
+		video_info* videoInfo = {0};
+		
 		void init(retro_game_geometry* geometry);
 		bool setPixelFormat(unsigned format);
 		void refreshVertexData();

@@ -20,7 +20,7 @@ static VideoClass videoClass;
 static AudioClass audioClass;
 static StateNotifierClass stateClass;
 static GamePadClass gamePadClass = GamePadClass(&stateClass);
-static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents, videoClass.videoInfo);
+static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents);
 
 //audio events
 static void audioSample(int16_t left, int16_t right) {

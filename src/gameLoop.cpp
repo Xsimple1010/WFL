@@ -13,6 +13,7 @@ void gameLoop(game_loop_params params) {
 	SDL_Event event;
 
 	video->init(&avInfo.geometry);
+	libretro->updateVideoInfo(video->videoInfo);
 	audio->init(avInfo.timing.sample_rate);
 
 	while (status->getStates().playing) {

@@ -10,7 +10,7 @@ class WFLGlClass {
 	public:
 		WFLGlClass();
 		~WFLGlClass();
-		video_info videoInfo;
+		video_info videoInfo = {0};
 		void setInfo(video_info* info);
 		void init(retro_game_geometry* geometry);
 		bool setPixelFormat(unsigned format);

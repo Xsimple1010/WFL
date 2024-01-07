@@ -1,14 +1,17 @@
 #include "LibretroClass.hpp"
 
-static libretro_external_data* externalData;
-static core_event_functions* eventFunctions;
-static video_info* videoInfo;
-static game_events* gameEvents;
+static libretro_external_data* externalData = {0};
+static core_event_functions* eventFunctions = {0};
+static video_info* videoInfo = {0};
+static game_events* gameEvents = {0};
 
-Libretro::Libretro(core_event_functions* eventFuncs, libretro_external_data* externData, game_events* gEvents, video_info* vInfo) {
+Libretro::Libretro(
+    core_event_functions* eventFuncs,
+    libretro_external_data* externData,
+    game_events* gEvents
+) {
     externalData = externData;
     eventFunctions = eventFuncs;
-    videoInfo = vInfo;
     gameEvents = gEvents;
 }
 
