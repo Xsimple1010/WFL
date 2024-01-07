@@ -1,5 +1,5 @@
 # WFL
-Um wrapper para núcleos libretro
+WFL é uma abstração da API Libretro.
 
 ## créditos
 
