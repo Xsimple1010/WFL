@@ -31,8 +31,8 @@ void WFLAPI wflPause();
 void WFLAPI wflResume();
 
 //save
-void WFLAPI wflSave();
-void WFLAPI wflLoadSave();
+bool WFLAPI wflSave();
+bool WFLAPI wflLoadSave();
 
 //gamePads
 int WFLAPI WFlGetKeyDown();
