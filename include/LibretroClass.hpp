@@ -90,6 +90,7 @@ class Libretro
 		void run();
 		void coreLoad(const char* coreFile);
 		void unloadGame();
+		void reset();
 		void deinit();
 		void updateVideoInfo(video_info* vinfo);
 		

@@ -131,6 +131,10 @@ void wflPause() {
 	stateClass.setPaused(true);
 }
 
+void wflReset() {
+	libretro.reset();
+}
+
 void wflLoadGame(const char* path) {
 	if(libretro.gameIsLoaded) return;
 	

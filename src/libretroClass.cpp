@@ -23,6 +23,10 @@ void Libretro::run() {
     retroFunctions.retro_run();
 }
 
+void Libretro::reset() {
+    retroFunctions.retro_reset();
+}
+
 void Libretro::setControllerPortDevice(unsigned port, unsigned device) {
     retroFunctions.retro_set_controller_port_device(port, device);
 }

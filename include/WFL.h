@@ -29,6 +29,7 @@ void WFLAPI wflDeinit();
 void WFLAPI wflStop();
 void WFLAPI wflPause();
 void WFLAPI wflResume();
+void WFLAPI wflReset();
 
 //save
 void WFLAPI wflSave();
