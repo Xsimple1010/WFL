@@ -185,10 +185,10 @@ int WFlGetKeyDown() {
 	return gamePadClass.getKeyDown(); 
 }
 
-void wflSave() {
-	libretro.save();
+bool wflSave() {
+	return libretro.save();
 }
 
-void wflLoadSave() {
-	libretro.loadSave();
+bool wflLoadSave() {
+	return libretro.loadSave();
 }

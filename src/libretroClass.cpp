@@ -109,10 +109,12 @@ void Libretro::unloadGame() {
 }
 
 std::filesystem::path Libretro::getCurrentSaveFile() {
-    std::filesystem::path saveDir = string(externalData->paths.save) + "/" + romSelected.stem().string(); 
+    std::filesystem::path saveDir = string(externalData->paths.save);
+    saveDir.append(getSystemInfo().library_name);
+    saveDir.append(romSelected.stem().string());
     std::filesystem::create_directories(saveDir);
 
-    saveDir = saveDir.string() + "/" + "save.state";
+    saveDir.append("save.state");
 
     return saveDir;
 }
@@ -130,8 +132,11 @@ bool Libretro::save() {
         return false;
     }
 
-    auto file = getCurrentSaveFile().string().c_str();
-    bool susses = wflWriterData(data, file, size);
+    bool susses = wflWriterData(
+        data, 
+        getCurrentSaveFile().string().c_str(), 
+        size
+    );
 
     SDL_free(data);
 
