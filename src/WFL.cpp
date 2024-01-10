@@ -132,7 +132,9 @@ void wflPause() {
 }
 
 void wflReset() {
+	wflPause();
 	libretro.reset();
+	wflResume();
 }
 
 void wflLoadGame(const char* path) {
@@ -186,9 +188,19 @@ int WFlGetKeyDown() {
 }
 
 bool wflSave() {
-	return libretro.save();
+	wflPause();
+	bool susses = libretro.save();
+	wflResume();
+
+	return susses;
 }
 
 bool wflLoadSave() {
-	return libretro.loadSave();
+	wflPause();
+	bool susses = libretro.loadSave();
+
+	std::cout << susses << std::endl;
+	wflResume();
+
+	return susses;
 }

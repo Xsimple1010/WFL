@@ -11,16 +11,22 @@ wfl_status StateNotifierClass::getStates() {
 }
 
 void StateNotifierClass::setRunning(bool isRunning) {
+    runningMtx.lock();
     status.running = isRunning;
     notifier(status);
+    runningMtx.unlock();
 };
 
 void StateNotifierClass::setPlaying(bool isPlaying) {
+    playingMtx.lock();
     status.playing = isPlaying;
     notifier(status);
+    playingMtx.unlock();
 };
 
 void StateNotifierClass::setPaused(bool isPaused) {
+    pausedMtx.lock();
     status.pause = isPaused;
     notifier(status);
+    pausedMtx.unlock();
 };

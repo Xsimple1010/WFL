@@ -22,6 +22,8 @@ void gameLoop(game_loop_params params) {
 		//the program to listen for events so that the window remains open
 		while (SDL_PollEvent(&event)) { } 
 
+		status->pausedMtx.lock();
+
 		if(!status->getStates().pause) {
 			if (externalCoreData->runLoopFrameTime.callback) {
 				retro_time_t current = cpuFeaturesGetTimeUsec();
@@ -42,6 +44,7 @@ void gameLoop(game_loop_params params) {
 			libretro->run();
 		};
 
+		status->pausedMtx.unlock();
 	}
 
 	video->deinit();
