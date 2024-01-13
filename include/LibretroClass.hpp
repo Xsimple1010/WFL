@@ -36,6 +36,7 @@ static struct {
 	void (*retro_init)(void);
 	void (*retro_reset)(void);
 	bool (*retro_load_game)(const struct retro_game_info* game);
+	bool (*retro_load_game_special)(unsigned game_type, const struct retro_game_info *info, size_t num_info);
 	void (*retro_deinit)(void);
 	void (*retro_unload_game)(void);
 
