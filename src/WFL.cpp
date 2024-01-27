@@ -14,7 +14,7 @@ static bool singleThread = false;
 
 static game_events gameEvents;
 static libretro_external_data externalCoreData;
-static core_event_functions coreEvents; 
+static core_event_functions coreEvents;
 
 static VideoClass videoClass;
 static AudioClass audioClass;
@@ -22,44 +22,51 @@ static StateNotifierClass stateClass;
 static GamePadClass gamePadClass = GamePadClass(&stateClass);
 static Libretro libretro = Libretro(&coreEvents, &externalCoreData, &gameEvents);
 
-//audio events
-static void audioSample(int16_t left, int16_t right) {
-	int16_t buffer[2] = { left, right };
+// audio events
+static void audioSample(int16_t left, int16_t right)
+{
+	int16_t buffer[2] = {left, right};
 
 	audioClass.write(buffer, 1);
 }
 
-static size_t audioSampleBatch(const int16_t* data, size_t frames) {
+static size_t audioSampleBatch(const int16_t *data, size_t frames)
+{
 	return audioClass.write(data, frames);
 }
 
-//gamePad events
-static void onDeviceAppend(wfl_game_pad device) {
-	if(libretro.coreIsLoaded) {
+// gamePad events
+static void onDeviceAppend(wfl_game_pad device)
+{
+	if (libretro.coreIsLoaded)
+	{
 		libretro.setControllerPortDevice(device.port, device.type);
 	}
 }
 
-//video events
-static bool setPixelFormat(unsigned format) {
+// video events
+static bool setPixelFormat(unsigned format)
+{
 	return videoClass.setPixelFormat(format);
 }
 
-static void refreshVertexData() {
+static void refreshVertexData()
+{
 	videoClass.refreshVertexData();
 }
 
-static void resizeToAspect(double ratio, int sw, int sh, int* dw, int* dh) {
+static void resizeToAspect(double ratio, int sw, int sh, int *dw, int *dh)
+{
 	videoClass.resizeToAspect(ratio, sw, sh, dw, dh);
 }
 
-static void videoRefresh(const void* data, unsigned width, unsigned height, size_t pitch) {
+static void videoRefresh(const void *data, unsigned width, unsigned height, size_t pitch)
+{
 	videoClass.videoRefresh(data, width, height, pitch);
 }
 
-
-//initialization variables
-static void initializeVariables() {
+static void initializeVariables()
+{
 	coreEvents.setPixelFormat = setPixelFormat;
 	coreEvents.refreshVertexData = refreshVertexData;
 	coreEvents.resizeToAspect = resizeToAspect;
@@ -73,121 +80,140 @@ static void initializeVariables() {
 
 	videoClass.setToDefaultValues();
 }
-//===========================================
 
-
-//WFLAPI
-void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths) {
-	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+// WFLAPI
+void wflInit(bool isSingleThread, bool fullDeinit, wfl_events events, wfl_paths paths)
+{
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+	{
 		die("SDL could not initialize! SDL_Error: ", SDL_GetError());
-    }
+	}
 
-	gamePadClass.onConnectCb 		= events.onConnect;
-	gamePadClass.onDisconnectCb 	= events.onDisconnect;
-	gamePadClass.onDeviceAppendCb 	= onDeviceAppend;
+	gamePadClass.onConnectCb = events.onConnect;
+	gamePadClass.onDisconnectCb = events.onDisconnect;
+	gamePadClass.onDeviceAppendCb = onDeviceAppend;
 
-	gameEvents.onGameClose 			= events.onGameClose;
-	gameEvents.onGameStart 			= events.onGameStart;
+	gameEvents.onGameClose = events.onGameClose;
+	gameEvents.onGameStart = events.onGameStart;
 
-	externalCoreData.paths 			= paths;
+	externalCoreData.paths = paths;
 
 	singleThread = isSingleThread;
 	enableFullDeinit = fullDeinit;
 
 	stateClass.init(events.onStatusChange);
 	stateClass.setRunning(true);
-	
+
 	initThreadIoEvents(&stateClass, &gamePadClass);
 }
 
-void wflLoadCore(const char* path) {
-	if(libretro.coreIsLoaded) return;
+void wflLoadCore(const char *path)
+{
+	if (libretro.coreIsLoaded)
+		return;
 	initializeVariables();
 	libretro.coreLoad(path);
 }
 
-void wflStop() {
+void wflStop()
+{
 	stateClass.setPlaying(false);
 	stateClass.setPaused(true);
 
-	externalCoreData = { 0 };
-    coreEvents = { 0 };
+	externalCoreData = {0};
+	coreEvents = {0};
 }
 
-void wflDeinit() {
+void wflDeinit()
+{
 	wflStop();
 
 	gamePadClass.deinit();
 	stateClass.setRunning(false);
 
-    SDL_Quit();
+	SDL_Quit();
 }
 
-void wflResume() {
+void wflResume()
+{
 	stateClass.setPaused(false);
 }
 
-void wflPause() {
+void wflPause()
+{
 	stateClass.setPaused(true);
 }
 
-void wflReset() {
+void wflReset()
+{
 	wflPause();
 	libretro.reset();
 	wflResume();
 }
 
-void wflLoadGame(const char* path) {
-	if(libretro.gameIsLoaded) return;
-	
+void wflLoadGame(const char *path)
+{
+	if (libretro.gameIsLoaded)
+		return;
+
 	stateClass.setPlaying(true);
 	stateClass.setPaused(false);
 
 	game_loop_params gameParams;
 
-	gameParams.gamePath 		= path;
-	gameParams.video 			= &videoClass;
-	gameParams.audio			= &audioClass;
-	gameParams.status 			= &stateClass;
-	gameParams.libretro 		= &libretro;
+	gameParams.gamePath = path;
+	gameParams.video = &videoClass;
+	gameParams.audio = &audioClass;
+	gameParams.status = &stateClass;
+	gameParams.libretro = &libretro;
 	gameParams.externalCoreData = &externalCoreData;
 
-	if(singleThread) {
+	if (singleThread)
+	{
 		gameLoop(gameParams);
 
-		if(enableFullDeinit) {
+		if (enableFullDeinit)
+		{
 			wflDeinit();
-		} else {
+		}
+		else
+		{
 			wflStop();
 		}
-
-	} else {
+	}
+	else
+	{
 		thread_game_extra_data_deinit extraDataDeinit;
 
-		extraDataDeinit.gamePadClass 	= &gamePadClass;
-		extraDataDeinit.fullDeinit 		= &enableFullDeinit;
+		extraDataDeinit.gamePadClass = &gamePadClass;
+		extraDataDeinit.fullDeinit = &enableFullDeinit;
 
 		initThreadGame(gameParams, extraDataDeinit);
 	}
 }
 
-void wflSetGamePad(wfl_game_pad device) {
+void wflSetGamePad(wfl_game_pad device)
+{
 	gamePadClass.append(device);
 }
 
-vector<wfl_game_pad> wflGetGamePad() {
+vector<wfl_game_pad> wflGetGamePad()
+{
 	return gamePadClass.getConnected();
 }
 
-vector<wfl_device> wflGetAllGamePads() {
+vector<wfl_device> wflGetAllGamePads()
+{
 	return gamePadClass.getAll();
 }
 
-int WFlGetKeyDown() {
-	return gamePadClass.getKeyDown(); 
+int WFlGetKeyDown()
+{
+	return gamePadClass.getKeyDown();
 }
 
-bool wflSave() {
+bool wflSave()
+{
 	wflPause();
 	bool susses = libretro.save();
 	wflResume();
@@ -195,7 +221,8 @@ bool wflSave() {
 	return susses;
 }
 
-bool wflLoadSave() {
+bool wflLoadSave()
+{
 	wflPause();
 	bool susses = libretro.loadSave();
 
